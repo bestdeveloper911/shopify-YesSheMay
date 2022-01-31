@@ -1,0 +1,10 @@
+{% assign product_schema = product.metafields.product_schema %}
+{% if product_schema['th_ratingCount'] > 0 %}
+  <span class="resourcesratingssummary" itemprop="aggregateRating" itemscope="" itemtype="https://schema.org/AggregateRating">
+    <meta itemprop="itemreviewed" content="{{ product.title }}">
+    <meta itemprop="ratingValue" content="{{ product_schema['th_ratingValue'] }}">
+    <meta itemprop="worstRating" content="1">
+    <meta itemprop="bestRating" content="5">
+    <meta itemprop="reviewCount" content="{{ product_schema['th_ratingCount'] }}">
+  </span>
+{% endif %}

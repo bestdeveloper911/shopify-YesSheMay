@@ -1,0 +1,264 @@
+{% style %}
+
+  #shopify-section-{{section.id}} .alt-img-with-text--container {
+    padding: {{ block.settings.block_spacing_mobile }}px 0 {{ block.settings.block_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .alt-img-with-text--container {
+      padding: {{ block.settings.block_spacing_desktop }}px 0 {{ block.settings.block_spacing_desktop }}px;
+    }
+  }
+  #shopify-section-{{section.id}} #block-{{block.id}} .alt-img-with-text--button.button-signpost {
+    color: {{ block.settings.signpost_color }};
+  }
+
+  #shopify-section-{{section.id}} #block-{{block.id}} {
+    background-color: {{ block.settings.content_background_color }};
+    {% if forloop.index > 1 %}
+      margin-top: {{section.settings.content_spacing}}px
+    {% endif %}
+  }
+
+  #shopify-section-{{section.id}} #block-{{block.id}} .preheading {
+    color: {{ block.settings.preheading_color }};
+  }
+
+  #shopify-section-{{section.id}} #block-{{block.id}} .heading {
+    color: {{ block.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} #block-{{block.id}} .text-content {
+    color: {{ block.settings.text_content_color }};
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} #block-{{block.id}} .alt-img-with-text--text {
+      width: {{- 100 | minus: block.settings.img_width_desktop -}}%;
+    }
+  }
+{% endstyle %}
+
+<section class="alt-img-with-text--container">
+
+    {% assign block_onboarding = false %}
+
+    {% if block.settings.img_desktop == blank %}
+      {% assign block_onboarding = true %}
+    {% endif %}
+
+    {%- capture desktop_background_style -%}
+      {% unless block_onboarding %}
+        {%- if block.settings.img_height_desktop == 'natural' -%}
+          {% assign ratio = block.settings.img_width_desktop | divided_by: 100.00 %}
+          padding-bottom: {{- 100 | divided_by: block.settings.img_desktop.aspect_ratio | times: ratio -}}%;
+        {%- endif -%}
+      {% endunless %}
+    {%- endcapture -%}
+
+    {%- capture mobile_background_style -%}
+      {% unless block_onboarding %}
+        {%- if block.settings.img_height_mobile == 'natural' -%}
+          {%- if block.settings.img_mobile -%}
+            padding-bottom: {{- 100 | divided_by: block.settings.img_mobile.aspect_ratio -}}%;
+          {%- else -%}
+            padding-bottom: {{- 100 | divided_by: block.settings.img_desktop.aspect_ratio -}}%;
+          {%- endif -%}
+        {%- endif -%}
+      {% endunless %}
+    {%- endcapture -%}
+
+    {% unless block_onboarding %}
+      {% capture desktop_image %}
+        {%
+          include 'rimg',
+          img: block.settings.img_desktop,
+          size: '1400x',
+          style: desktop_background_style,
+          lazy: settings.lazy_load,
+          background: true
+        %}
+      {% endcapture %}
+
+      {% capture mobile_image %}
+        {% if block.settings.img_mobile %}
+          {%
+            include 'rimg',
+            img: block.settings.img_mobile,
+            size: '1400x',
+            style: mobile_background_style,
+            lazy: settings.lazy_load,
+            background: true
+          %}
+        {% else %}
+          {%
+            include 'rimg',
+            img: block.settings.img_desktop,
+            size: '1400x',
+            style: mobile_background_style,
+            lazy: settings.lazy_load,
+            background: true
+          %}
+        {% endif %}
+      {% endcapture %}
+    {% endunless %}
+
+    {% if block.settings.block_link == true and block.settings.button_link != blank %}
+      <a class="block-link" href="{{ block.settings.button_link }}">
+    {% endif %}
+    <div
+      {{ block.shopify_attributes }}
+      id="block-{{- block.id -}}"
+      class="
+        alt-img-with-text--content
+        {% if block_onboarding %}onboarding{% endif %}
+        image-{{ block.settings.img_position_desktop }}
+        image-{{ block.settings.img_position_mobile }}"
+    >
+
+      {% comment %}
+        Text content
+      {% endcomment %}
+
+      <div
+        class="
+          alt-img-with-text--text
+          position-{{ block.settings.text_vertical_position }}
+          alignment-{{ block.settings.text_alignment }}"
+      >
+          {% if block.settings.preheading != blank %}
+            <div class="preheading">
+              {{ block.settings.preheading }}
+            </div>
+          {% endif %}
+
+          {% if block.settings.heading != blank %}
+            <h3 class="heading {{ block.settings.heading_size }}">
+              {{ block.settings.heading }}
+            </h3>
+          {% endif %}
+
+          {% if block.settings.text_content != blank %}
+            <div class="text-content">
+              {{ block.settings.text_content }}
+            </div>
+          {% endif %}
+
+          {% comment %}
+            Button
+          {% endcomment %}
+
+          {% if block.settings.button_text != blank %}
+
+            {% unless block.settings.block_link == true %}
+              {% if block.settings.button_link %}
+                <a class="button-link" href="{{ block.settings.button_link }}">
+              {% endif %}
+            {% endunless %}
+
+            {% assign button_style = block.settings.button_style | split: "_" %}
+
+            {%- capture button_classes -%}
+              alt-img-with-text--button
+              button-{{ button_style.first }}
+              {% if button_style contains 'icon' %}
+                has-icon
+              {% endif %}
+            {%- endcapture -%}
+
+            <span class="{{- button_classes -}}">
+              <span class="button-text">
+                {{- block.settings.button_text | escape -}}
+              </span>
+
+              {% if button_style contains 'icon' or button_style contains 'signpost' %}
+                  {% if button_style contains 'icon' %}
+                    <span class="button-icon">
+                      {% include 'icon-library', id: 'icon-chevron-signpost' %}
+                    </span>
+                  {% else if button_style contains 'signpost' %}
+                    <span class="signpost-icon">
+                      {% include 'icon-library', id: 'icon-chevron-down-small' %}
+                    </span>
+                  {% endif %}
+              {% endif %}
+
+            </span>
+
+            {% unless block.settings.block_link == true %}
+              {% if block.settings.button_link %}
+                </a>
+              {% endif %}
+            {% endunless %}
+
+          {% endif %}
+      </div>
+
+      {% comment %}
+        Desktop image
+      {% endcomment %}
+
+      <div
+          class="
+            height-{{ block.settings.img_height_desktop }}
+            alt-img-with-text--image
+            image-desktop"
+        style="width:{{- block.settings.img_width_desktop -}}%;
+        {%- if block.settings.img_height_desktop == 'custom' -%}
+          height:{{- block.settings.custom_height_desktop -}}px;
+        {% else %}
+          {{ desktop_background_style }}
+        {%- endif -%}
+
+        {%- if block_onboarding -%}
+          {%- capture block_placeholder -%}
+            {%-
+              include 'placeholder_svg_uri'
+              placeholder: 'image'
+            -%}
+          {%- endcapture -%}
+          background-image: url('{{ block_placeholder | strip_newlines }}')
+        {%- endif -%}"
+
+        {% unless block_onboarding %}
+          {{ desktop_image }}
+        {% endunless %}
+      >
+      </div>
+
+      {% comment %}
+        Mobile image
+      {% endcomment %}
+
+      <div
+        class="
+          height-{{ block.settings.img_height_mobile }}
+          alt-img-with-text--image
+          image-mobile"
+        style="
+        {% if block.settings.img_height_mobile == 'custom' %}
+          height:{{- block.settings.custom_height_mobile -}}px
+        {% else %}
+          {{ mobile_background_style }}
+        {% endif %}
+
+        {%- if block_onboarding -%}
+          {%- capture block_placeholder -%}
+            {%-
+              include 'placeholder_svg_uri'
+              placeholder: 'image'
+            -%}
+          {%- endcapture -%}
+          background-image: url('{{ block_placeholder | strip_newlines }}')
+        {%- endif -%}"
+
+        {% unless block_onboarding %}
+          {{ mobile_image }}
+        {% endunless %}
+      >
+      </div>
+    </div>
+    {% if block.settings.block_link == true and block.settings.button_link != blank %}
+      </a>
+    {% endif %}
+</section>

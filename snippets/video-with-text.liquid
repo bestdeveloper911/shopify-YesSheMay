@@ -1,0 +1,132 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .dynamic-video-with-text-wrapper {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .dynamic-video-with-text-wrapper {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}}  .dynamic-video-with-text-wrapper .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .dynamic-video-with-text-wrapper .home-section--subheading,
+  #shopify-section-{{section.id}} .dynamic-video-with-text-wrapper .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-type="dynamic-video"
+  data-section-id="{{ section.id }}"
+  data-section-data>
+  {
+    "autoplay": {{ section.settings.autoplay | json }}
+  }
+</script>
+
+<div class="dynamic-video-with-text-wrapper">
+
+  {% assign url = section.settings.url | default: 'https://www.youtube.com/watch?v=_9VUPq3SxOc' %}
+
+  <div
+    class="
+      dynamic-video-with-text
+      position-{{ section.settings.text_vertical_position }}
+      alignment-{{ section.settings.text_alignment }}
+    ">
+    {% if section.settings.preheading != blank %}
+      <div class="preheading">
+        {{ section.settings.preheading }}
+      </div>
+    {% endif %}
+
+    {% if section.settings.heading != blank %}
+      <h3 class="heading {{ section.settings.heading_size }}">
+        {{ section.settings.heading }}
+      </h3>
+    {% endif %}
+
+    {% if section.settings.text_content != blank %}
+      <div class="text-content">
+        {{ section.settings.text_content }}
+      </div>
+    {% endif %}
+
+    {% if section.settings.button_text != blank %}
+
+      {% unless section.settings.block_link == true %}
+        {% if section.settings.button_link %}
+          <a class="button-link" href="{{ section.settings.button_link }}">
+        {% endif %}
+      {% endunless %}
+
+      {% assign button_style = section.settings.button_style | split: "_" %}
+
+      {%- capture button_classes -%}
+        video-with-text--button
+        button-{{ button_style.first }}
+        {% if button_style contains 'icon' %}
+          has-icon
+        {% endif %}
+      {%- endcapture -%}
+
+      <span class="{{- button_classes -}}">
+        <span class="button-text">
+          {{- section.settings.button_text | escape -}}
+        </span>
+
+        {% if button_style contains 'icon' or button_style contains 'signpost' %}
+            {% if button_style contains 'icon' %}
+              <span class="button-icon">
+                {% include 'icon-library', id: 'icon-chevron-signpost' %}
+              </span>
+            {% else if button_style contains 'signpost' %}
+              <span class="signpost-icon">
+                {% include 'icon-library', id: 'icon-chevron-down-small' %}
+              </span>
+            {% endif %}
+        {% endif %}
+
+      </span>
+
+      {% unless section.settings.block_link == true %}
+        {% if section.settings.button_link %}
+          </a>
+        {% endif %}
+      {% endunless %}
+
+    {% endif %}
+  </div>
+
+  <div class="dynamic-video">
+    {% assign overlay = null %}
+
+    {% if section.settings.show_overlay %}
+      {% assign opacity = section.settings.opacity | times: 0.01 %}
+      {% assign overlay = section.settings.background | color_modify: 'alpha', opacity %}
+    {% endif %}
+
+    {%
+      include 'video',
+      cover: section.settings.cover,
+      aspect_ratio: section.settings.aspect_ratio,
+      overlay: overlay,
+      url: url
+      %}
+    {% if section.settings.show_caption %}
+      <div class="dynamic-video-caption rte">{{ section.settings.caption }}</div>
+    {% endif %}
+  </div>
+
+</div>

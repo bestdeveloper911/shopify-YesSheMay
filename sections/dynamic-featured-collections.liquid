@@ -1,0 +1,478 @@
+<script type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-collections"
+>
+</script>
+
+<section class="featured-collections--container">
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="home-section--title-container" >
+    {% if section.settings.title != blank %}
+      <h2 class="home-section--title">
+        {{ section.settings.title | escape }}
+      </h2>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <div class="home-section--subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="home-section--content featured-collections--content">
+    {%
+      include 'promo-block-mosaic',
+      block: section,
+      text_alignment: section.settings.text_alignment,
+      block_title: section.settings.promo_title,
+    %}
+
+    <div
+      class="
+        featured-collections--grid-items-container
+        {% if section.blocks.size < 3 %}
+          featured-collections--lte-2-grid-items
+        {% endif %}
+      "
+    >
+      {% for block in section.blocks %}
+        {% if block.type == 'collection' %}
+          {% assign collection = collections[block.settings.collection] %}
+
+          {% assign grid_item_image = blank %}
+          {% if block.settings.image %}
+            {% assign grid_item_image = block.settings.image %}
+          {% elsif collection.image %}
+            {% assign grid_item_image = collection.image %}
+          {% elsif collection.products.first.featured_media.preview_image %}
+            {% assign grid_item_image = collection.products.first.featured_media.preview_image %}
+          {% endif %}
+
+          <div {{ block.shopify_attributes }} class="featured-collections--grid-item">
+            <a
+              class="
+                featured-collections--grid-item-image-wrapper
+                {% if grid_item_image == blank %}featured-collections--grid-item-image-placeholder{% endif %}
+              "
+              href="{{collection.url}}"
+            >
+              {% if grid_item_image == blank %}
+                {%- capture index -%}
+                  {%- cycle '1', '2', '3', '4', '5', '6' -%}
+                {%- endcapture -%}
+                {{ 'collection-' | append: index | placeholder_svg_tag: 'placeholder--image' }}
+              {% else %}
+                {% assign alt_text = grid_item_image.alt %}
+                {% if alt_text == blank %}
+                  {% assign alt_text = 'onboarding.featured_collection.title' | t %}
+                {% endif %}
+                {%
+                  include 'rimg',
+                  img: grid_item_image,
+                  alt: alt_text,
+                  class: 'featured-collections--grid-item-image',
+                  size: '640x',
+                  lazy: settings.lazy_load,
+                  canvas: settings.lazy_load,
+                %}
+              {% endif %}
+            </a>
+            <h2 class="featured-collections-grid-item-title align-{{ section.settings.collection_text_alignment }} style-{{ section.settings.collection_label_style }}">
+              <a href="{{collection.url}}">
+                {%- if block.settings.title != blank  or block.settings.title_mobile != blank -%}
+                  {%- assign collection_title = block.settings.title | default: collection.title -%}
+                  {%- assign mobile_collection_title = block.settings.title_mobile | default: block.settings.title -%}
+                  <span class="featured-collections-item-title-desktop">
+                      {{ collection_title }}
+                  </span>
+                  <span class="featured-collections-item-title-mobile">
+                      {{ mobile_collection_title }}
+                  </span>
+                {% elsif collection.title != blank %}
+                  {{ collection.title }}
+                {% else %}
+                  {{ 'onboarding.featured_collection.title' | t }}
+                {% endif %}
+              </a>
+            </h2>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    background-color: {{ section.settings.background_color }};
+    }
+
+  #shopify-section-{{section.id}} .featured-collections--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .featured-collections--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{ section.id }} .featured-collections--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-collections--container .home-section--subheading,
+  #shopify-section-{{section.id}} .featured-collections--container .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+
+  #shopify-section-{{ section.id }} .promo-block-mosaic {
+    {% if section.settings.color != blank %}
+      color: {{ section.settings.color }};
+    {% endif %}
+  }
+
+  {% unless section.settings.image %}
+    #shopify-section-{{ section.id }} .promo-block-mosaic {
+      {%- capture bg_image -%}
+        {%-
+          include 'placeholder_svg_uri'
+          placeholder: 'image'
+        -%}
+      {%- endcapture -%}
+      background-image: url('{{ bg_image | strip_newlines }}');
+    }
+
+    {% comment %} This is used to force the aspect ratio and size of the container
+    in the absence of an actual image {% endcomment %}
+    #shopify-section-{{ section.id }} .promo-block-mosaic::before {
+      display: block;
+      width: 100%;
+      padding-bottom: 75%;
+      content: "";
+    }
+  {% endunless %}
+
+  {% if section.settings.overlay_style != 'none' and section.settings.overlay_color != blank %}
+      {% assign opacity = section.settings.opacity | times: 0.01 %}
+
+      {% if section.settings.text_alignment contains 'top' %}
+        {% assign text_position = 'top' %}
+      {% elsif section.settings.text_alignment contains 'bottom' %}
+        {% assign text_position = 'bottom' %}
+      {% else %}
+        {% assign text_position = section.settings.text_alignment | remove: 'center-' %}
+      {% endif %}
+
+      .promo-block-mosaic--{{ section.id }} .promo-block-mosaic--content {
+        {% if section.settings.overlay_style == 'solid' %}
+          background-color: {{ section.settings.overlay_color | color_modify: 'alpha', opacity }};
+        {% else %}
+          background: {%
+            include 'gradient',
+            color: section.settings.overlay_color,
+            opacity: opacity,
+            text_position: text_position,
+          %};
+        {% endif %}
+      }
+    {% endif %}
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Featured collections",
+  "class": "featured-collections--section",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Featured collections"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Promotion"
+    },
+    {
+      "id": "image",
+      "type": "image_picker",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "promo_title",
+      "label": "Title",
+      "default": "Promotion"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Description",
+      "default": "Use this section to promote a group of collections.",
+      "info": "Limited to 120 characters."
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "Text color",
+      "default": "#4d4d4d"
+    },
+    {
+      "type": "url",
+      "id": "block_link",
+      "label": "Link"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Button"
+    },
+    {
+      "id": "button_style",
+      "type": "select",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "primary_icon",
+          "label": "Primary with icon"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        },
+        {
+          "value": "secondary_icon",
+          "label": "Secondary with icon"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "id": "text_alignment",
+      "type": "select",
+      "label": "Text position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "center-left",
+          "label": "Middle left"
+        },
+        {
+          "value": "center-center",
+          "label": "Middle center"
+        },
+        {
+          "value": "center-right",
+          "label": "Middle right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "bottom-left"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "Overlay style",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "gradient",
+          "label": "Gradient"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "id": "overlay_color",
+      "type": "color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "id": "opacity",
+      "type": "range",
+      "label": "Opacity",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "id": "collection_label_style",
+      "type": "select",
+      "label": "Collection title font",
+      "default": "heading",
+      "options": [
+        {
+          "value": "heading",
+          "label": "Heading"
+        },
+        {
+          "value": "body",
+          "label": "Body"
+        }
+      ]
+    },
+    {
+      "id": "collection_text_alignment",
+      "type": "select",
+      "label": "Text alignment",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom collection title"
+        },
+        {
+          "type": "text",
+          "id": "title_mobile",
+          "label": "Custom collection title (mobile)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collections",
+      "category": "Collection",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

@@ -1,0 +1,141 @@
+<style>
+#how-did-you-hear-about-us--label,
+#how-did-you-hear-about-us-other--label {
+    font-weight: bold;
+}
+
+select#how-did-you-hear-about-us,
+input#how-did-you-hear-about-us-other {
+    width: 100%;
+    padding: 8px 10px 8px 10px;
+    line-height: 1.2;
+}
+
+#how-did-you-hear-about-us,
+#how-did-you-hear-about-us-other,
+#how-did-you-hear-about-us--label,
+#how-did-you-hear-about-us--error,
+#how-did-you-hear-about-us-other--label,
+#how-did-you-hear-about-us-other--error {
+    display:block;
+    margin-bottom: 5px;
+}
+
+#how-did-you-hear-about-us-other.error,
+#how-did-you-hear-about-us.error {
+    border: 2px solid {{ settings.hau_error_color }};
+}
+
+#how-did-you-hear-about-us--error,
+#how-did-you-hear-about-us-other--error {
+    color: {{ settings.hau_error_color }};
+}
+</style>
+
+<div class="form-vertical">
+<p>
+    <label id="how-did-you-hear-about-us--label" for="how-did-you-hear-about-us">How did you hear about us?</label>
+    <span id="how-did-you-hear-about-us--error" style="display:none">{{ settings.hau_error_message }}</span>
+    <select id="how-did-you-hear-about-us" name="attributes[how-did-you-hear-about-us]">
+    <option value=""{% if cart.attributes.how-did-you-hear-about-us == "" %} selected{% endif %}>Please make a selection</option>
+    {% assign optionsArray = settings.hau_form_options | split: ',' %}
+    {% for o in optionsArray %}
+    {% assign option = o | strip %}
+    <option value="{{ option }}"{% if cart.attributes.how-did-you-hear-about-us == option %} selected{% endif %}>{{ option }}</option>
+    {% endfor %}
+    <option value="Other"{% if cart.attributes.how-did-you-hear-about-us == "Other" %} selected{% endif %}>Other</option>
+    </select>
+</p>
+<p id="otherFormWrapper" style="{% unless cart.attributes.how-did-you-hear-about-us == 'Other' %}display:none{% endunless %}">
+    <label id="how-did-you-hear-about-us-other--label" for="how-did-you-hear-about-us-other">Other</label>
+    <span id="how-did-you-hear-about-us-other--error" style="display:none">{{ settings.hau_error_message_other }}</span>
+    <input id="how-did-you-hear-about-us-other" type="text" name="attributes[how-did-you-hear-about-us-other]" value="{{ cart.attributes.how-did-you-hear-about-us-other }}"/>
+</p>
+</div>
+
+<script>
+(function() {
+
+    document.addEventListener("DOMContentLoaded", initForm);
+    document.addEventListener("shopify:section:load", initForm);
+
+    function initForm(){
+
+    var formElement = document.querySelector('#how-did-you-hear-about-us');
+    var formError = document.querySelector('#how-did-you-hear-about-us--error');
+    var otherFormElement = document.querySelector('#how-did-you-hear-about-us-other');
+    var otherFormError = document.querySelector('#how-did-you-hear-about-us-other--error');
+    var otherFormWrapper = document.querySelector('#otherFormWrapper');
+    var checkoutButtons = document.querySelectorAll('[name="checkout"], [name="goto_pp"], [name="goto_gc"]');
+
+    function showOrHideForm(){
+        if (formElement.value == 'Other'){
+        otherFormWrapper.style.display = '';
+        } else {
+        otherFormWrapper.style.display = 'none';
+        }
+    }
+
+    function checkFormElement(){
+        if (formElement.value.length == 0){
+        formElement.classList.add('error');
+        formError.style.display = '';
+        } else {
+        if (formElement.classList.contains('error')){
+            formElement.classList.remove('error');
+            formError.style.display = 'none';
+        }
+        }
+    }
+
+    function checkOtherFormElement(){
+        if (otherFormElement.value.length == 0){
+        otherFormElement.classList.add('error');
+        otherFormError.style.display = '';
+        } else {
+        if (otherFormElement.classList.contains('error')){
+            otherFormElement.classList.remove('error');
+            otherFormError.style.display = 'none';
+        }
+        }
+    }
+
+    otherFormElement.addEventListener("input", function() {
+        {% if settings.hau_form_validation %}
+        checkOtherFormElement();
+        {% endif %}
+    });
+
+    formElement.addEventListener("change", function() {
+        showOrHideForm();
+        {% if settings.hau_form_validation %}
+        checkFormElement();
+        {% endif %}
+    });
+
+    checkoutButtons.forEach(function(element){
+        element.addEventListener("click", function(evt) {
+
+        {% if settings.hau_form_validation %}
+        var validated = true;
+        if (formElement.value.length == 0){
+            checkFormElement();
+            validated = false;
+        }
+        if (formElement.value == 'Other'){
+            if (otherFormElement.value.length == 0){
+            checkOtherFormElement();
+            validated = false;
+            }
+        }
+        if (!validated) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+        {% endif %}
+        });
+    });
+
+    }
+})()
+</script>

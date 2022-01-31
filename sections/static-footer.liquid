@@ -1,0 +1,304 @@
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="static-footer">
+</script>
+
+<footer
+  class="site-footer"
+  role="contentinfo"
+  aria-label="Footer"
+  data-mobile-alignment="{{ section.settings.mobile_alignment }}"
+>
+  {% if section.blocks.size %}
+    <div
+      class="
+        site-footer-item
+        site-footer-blocks
+        column-count-{{ section.blocks.size }}
+      "
+    >
+      {% for block in section.blocks %}
+        {% include 'footer-block' %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="site-footer-item site-footer-information">
+    <div class="site-footer-information-nav-credits">
+      {% if linklists[section.settings.additional_menu].links != blank %}
+        <nav
+          class="site-footer-navigation"
+          aria-label="{{ 'general.accessibility.nav_footer' | t }}"
+        >
+          {%
+            include 'navlist',
+            menu_list: linklists[section.settings.additional_menu].links,
+            depth: 1,
+            max_depth: 1
+          %}
+        </nav>
+      {% endif %}
+
+      <p class="site-footer-credits">
+        {% assign year = 'now' | date: '%Y' %}
+        {{ 'footer.general.copyright_html' | t: year: year, shop_name: shop.name }}
+      </p>
+
+      <div class="site-footer-credits">
+        {{ section.settings.small_text }}
+      </div>
+    </div>
+
+    {%- assign currency_selector = section.settings.show_currency_selector -%}
+    {%- assign locale_selector = section.settings.show_locale_selector -%}
+
+    {%- if section.settings.payment_icons or currency_selector or locale_selector -%}
+      <div class="site-footer-information__payment-icons-cross-border">
+        {% comment %}cross-border{% endcomment %}
+        {% form 'localization' %}
+          {% if locale_selector and form.available_locales.size > 1 %}
+            {% comment %}multi-language{% endcomment %}
+            <div class="selectors-form__item">
+              <div class="disclosure" data-disclosure-locale>
+                <button type="button" class="disclosure__toggle" aria-expanded="false" aria-controls="lang-list" aria-describedby="lang-heading" data-disclosure-toggle>
+                  {{ form.current_locale.endonym_name }}
+                </button>
+                <ul id="lang-list" class="disclosure-list" data-disclosure-list>
+                  {% for locale in form.available_locales %}
+                    <li>
+                      <a class="disclosure-list__item {% if locale.iso_code == form.current_locale.iso_code %}disclosure-list__item--current{% endif %}" href="#" lang="{{ locale.iso_code }}" {% if locale.iso_code == form.current_locale.iso_code %}aria-current="true"{% endif %} data-value="{{ locale.iso_code }}" data-disclosure-option>
+                        <span class="disclosure-list__option">{{ locale.endonym_name }}</span>
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+                <input type="hidden" name="locale_code" id="LocaleSelector" value="{{ form.current_locale.iso_code }}" data-disclosure-input/>
+              </div>
+            </div>
+          {% endif %}
+        
+          {% if currency_selector and form.available_currencies.size > 1 %}
+            {% comment %}multi-currency{% endcomment %}
+            <div class="selectors-form__item">
+              <div class="disclosure" data-disclosure-currency>
+                <button type="button" class="disclosure__toggle" aria-expanded="false" aria-controls="currency-list" aria-describedby="currency-heading" data-disclosure-toggle>
+                  {{ form.current_currency.iso_code }} {%- if form.current_currency.symbol -%}{{ form.current_currency.symbol }}{%- endif -%}
+                </button>
+                <ul id="currency-list" class="disclosure-list" data-disclosure-list>
+                  {% for currency in form.available_currencies %}
+                    <li>
+                      <a class="disclosure-list__item {% if currency.iso_code == form.current_currency.iso_code %}disclosure-list__item--current{% endif %}" href="#" {% if currency.iso_code == form.current_currency.iso_code %}aria-current="true"{% endif %} data-value="{{ currency.iso_code }}" data-disclosure-option>
+                        <span class="disclosure-list__option">{{ currency.iso_code }} {%- if currency.symbol -%}{{ currency.symbol }}{%- endif -%}</span>
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+                <input type="hidden" name="currency_code" id="CurrencySelector" value="{{ form.current_currency.iso_code }}" data-disclosure-input/>
+              </div>
+            </div>
+          {% endif %}
+        {% endform %}
+
+        {% if section.settings.payment_icons and shop.enabled_payment_types.size > 0 %}
+          <ul class="payment-icons">
+            {% for type in shop.enabled_payment_types %}
+              <li class="payment-icons-item">
+                {{ type | payment_type_svg_tag }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "select",
+      "id": "mobile_alignment",
+      "label": "Mobile alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "centered",
+          "label": "Centered"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Payment icons"
+    },
+    {
+      "type": "checkbox",
+      "id": "payment_icons",
+      "label": "Show payment icons",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Language Selector",
+      "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_locale_selector",
+      "label": "Show language selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Currency Selector",
+      "info": "To add a currency, go to your [currency settings.](/admin/settings/payments)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_currency_selector",
+      "label": "Show currency selector",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Additional menu"
+    },
+    {
+      "type": "link_list",
+      "id": "additional_menu",
+      "label": "Menu",
+      "default": "footer",
+      "info": "Drop-down items will not be shown."
+    },
+    {
+      "type": "header",
+      "content": "Small footer text"
+    },
+    {
+      "type": "richtext",
+      "id": "small_text",
+      "label": "This text appears below the copyright line.",
+      "default": "<p><a href=\"https://www.pixelunion.net/shopify-themes/\">Superstore Theme by Pixel Union.</a> <a href=\"https://www.shopify.ca/?utm_campaign=poweredby&utm_medium=shopify&utm_source=onlinestore\">Powered by Shopify</a></p>"
+   }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "main-menu",
+          "info": "Dropdown items will not be shown."
+        }
+      ]
+    },
+    {
+	  "type": "logo",
+      "name": "Logo",
+      "settings": [
+		{
+          "id": "logo",
+          "type": "image_picker",
+          "label": "Logo",
+          "info": "Square or landscape images recommended."
+		}
+	  ]
+    },
+    {
+      "type": "rich_text",
+      "name": "Rich text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Rich text"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share news and seasonal promotions.</p>"
+        }
+      ]
+    },
+    {
+      "type": "social_accounts",
+      "name": "Social accounts",
+      "limit": 1,
+      "settings": [
+       {
+         "type": "paragraph",
+         "content": "Social links can be managed in your General settings."
+       }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Subscribe"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Invite customers to join your mailing list.</p>"
+        },
+        {
+          "type":      "select",
+          "id":        "button_style",
+          "label":     "Button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            }
+          ],
+          "default":   "primary"
+       }
+      ]
+    }
+  ],
+  "default": {
+    "settings": {
+      "additional_menu": "footer"
+    },
+    "blocks": [
+      {
+        "type": "menu",
+        "settings": {}
+      },
+      {
+        "type": "newsletter",
+        "settings": {}
+      },
+      {
+        "type": "rich_text",
+        "settings": {}
+      }
+    ]
+  }
+}
+
+{% endschema %}

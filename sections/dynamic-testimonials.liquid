@@ -1,0 +1,200 @@
+{% style %}
+  {% if section.settings.background_color != blank %}
+    #shopify-section-{{ section.id }} {
+      background-color: {{ section.settings.background_color }};
+    }
+  {% endif %}
+
+  #shopify-section-{{section.id}} {
+    padding-top: {{ section.settings.spacing_mobile }}px;
+    padding-bottom: {{ section.settings.spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} {
+      padding-top: {{ section.settings.spacing_desktop }}px;
+      padding-bottom: {{ section.settings.spacing_desktop }}px;
+    }
+  }
+
+  {% if section.settings.title_color != blank %}
+    #shopify-section-{{ section.id }} .testimonials-heading {
+      color: {{ section.settings.title_color }};
+    }
+
+    #shopify-section-{{ section.id }} .testimonials .dot {
+      background-color: {{ section.settings.title_color }};
+    }
+  {% endif %}
+
+  {% if section.settings.subtitle_color != blank %}
+    #shopify-section-{{ section.id }} .testimonials-subheading,
+    #shopify-section-{{ section.id }} .testimonials-subheading a {
+      color: {{ section.settings.subtitle_color }};
+    }
+  {% endif %}
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-testimonials"
+>
+</script>
+
+<section class="testimonials-section">
+  {% if section.settings.title != blank or section.settings.subtitle != blank %}
+    <header class="testimonials-header">
+      {% if section.settings.title != blank %}<h2 class="home-section--title testimonials-heading">{{ section.settings.title }}</h2>{% endif %}
+      {% if section.settings.subtitle != blank %}<div class="home-section--subheading testimonials-subheading">{{ section.settings.subtitle }}</div>{% endif %}
+    </header>
+  {% endif %}
+
+  {% if section.blocks.size > 0 %}
+    <div class="testimonials testimonials-{{ section.blocks.size }}" data-testimonials="{{ section.blocks.size }}">
+      {% for block in section.blocks %}
+        <div
+          class="
+            testimonial
+            {% if block.settings.show_quotations %}testimonial-show-quotations{% endif %}
+          "
+        >
+          <div class="testimonial-inner">
+            {% if block.settings.image %}
+              <figure class="testimonial-figure">
+                {%
+                  include 'rimg',
+                  img: block.settings.image,
+                  class: 'testimonial-image',
+                  size: '60x',
+                  lazy: settings.lazy_load
+                %}
+              </figure>
+            {% endif %}
+
+            <blockquote class="testimonial-blockquote">
+              {% if block.settings.quote %}
+                <div class="testimonial-blockquote-quote">
+                  {{ block.settings.quote }}
+                </div>
+              {% endif %}
+
+              {% if block.settings.citation %}
+                <footer class="testimonial-blockquote-footer">
+                  <cite class="testimonial-blockquote-citation">{{ block.settings.citation }}</cite>
+                </footer>
+              {% endif %}
+            </blockquote>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "richtext",
+      "id": "subtitle",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 36
+    }
+  ],
+  "max_blocks": 5,
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "richtext",
+          "id": "quote",
+          "label": "Quote",
+          "default": "<p>Showcase up to five testimonials to build trust with potential customers.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_quotations",
+          "label": "Show quotations",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "citation",
+          "label": "Citation",
+          "default": "<p>Name</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "category": "Testimonials",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

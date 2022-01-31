@@ -1,0 +1,43 @@
+<style>
+  {% for block in section.blocks %}
+    [data-color='{{ block.settings.title | handle }}'] {
+      {% if block.settings.image != blank %}
+        background: url('{{ block.settings.image | img_url: '200x' }}') !important;
+        background-size: cover !important;
+      {% endif %}
+      color: {{ block.settings.color }};
+    }
+  {% endfor %}
+</style>
+
+{% schema %}
+{
+  "name": "Color Swatch",
+  "settings": [
+    
+  ],
+  "blocks": [
+    {
+      "name": "Swatch",
+      "type": "swatch",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

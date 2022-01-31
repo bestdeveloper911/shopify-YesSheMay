@@ -1,0 +1,166 @@
+{%
+  include 'api' with 'variant:price',
+  product: item.product,
+  variant: item.variant,
+%}
+
+<li
+  class="cart-item"
+  data-cartitem
+  data-cartitem-id="{{ item.variant_id }}"
+  data-cartitem-price="{{ price }}">
+  <figure class="cart-item--image-wrapper">
+    <a href="{{ item.url }}">
+      {% if item.image %}
+        {%
+          include 'rimg',
+          img: item.image,
+          alt: item.title,
+          size: '120x'
+        %}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder--image' }}
+      {% endif %}
+    </a>
+  </figure>
+
+  <div class="cart-item--inner">
+
+    <div class="cart-item--content">
+      <h2 class="cart-item--content-title">
+        <a href="{{ item.url }}">
+          {{ item.product.title }}
+        </a>
+      </h2>
+
+      <div class="cart-item--content-price">
+        <span class="cart-item--price-title">
+          {{ 'cart.general.price' | t }}
+        </span>
+
+        {% if compare_at_price > price %}
+          <span class="cart-item--sale-price money">
+            {{ compare_at_price | money }}
+          </span>
+        {% endif %}
+
+        <span class="money">
+          {{ price | money }}
+        </span>
+      </div>
+
+      {% unless item.product.has_only_default_variant %}
+        {% for option in item.product.options %}
+          <div class="cart-item--product-options">
+            <span class="cart-item--option-name">{{ option }}</span>
+            {{ item.variant.options[forloop.index0] }}
+          </div>
+        {% endfor %}
+      {% endunless %}
+
+      {% assign p_tag = item.product.tags %}
+      {% if p_tag contains 'Ship1W' or p_tag contains 'Ship2W' or p_tag contains 'Ship3W' %}
+        <div class="cart-item--product-options">
+          <span class="cart-item--option-name">Estimated delivery: </span>
+          {% if p_tag contains 'Ship1W' %}
+            3-7 days
+          {% elsif p_tag contains 'Ship2W' %}
+            2-3 weeks
+          {% elsif p_tag contains 'Ship3W' %}
+            3 weeks
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if settings.product_show_stock_level != 'hidden' %}
+        {% if item.variant.inventory_quantity > 0 and item.variant.inventory_quantity <= settings.product_low_stock_threshold %}
+          {%
+            include 'product-stock-level',
+            inventory_quantity: item.variant.inventory_quantity,
+            container: 'cart_item',
+            variant: item.variant
+          %}
+        {% endif %}
+      {% endif %}
+
+      {% if settings.product_show_sku == true %}
+        <div
+          class="
+            cart-item--sku
+            {% if item.sku == empty %}cart-item--sku-empty{% endif %}
+          "
+        >
+          {{ 'product.general.sku_html' | t: sku: item.sku | strip_newlines }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="cart-item--info">
+
+      <div
+        class="cart-item--quantity form-fields--qty"
+        data-quantity-wrapper
+        >
+        <div class="form-field form-field--qty-select {% if item.quantity < 10 %}visible{% else %}hidden{% endif %}">
+          <div class="form-field-select-wrapper">
+            <select
+              class="form-field-input form-field-select form-field-filled"
+              id="quantity_{{ item.product.title | replace: " ", "_" }}"
+              {% if item.quantity >= 10 %}tabindex="-1"{% endif %}
+              aria-label="{{ 'general.general.quantity' | t }}"
+              data-quantity-select
+              data-cartitem-quantity>
+              {% for i in (1..9) %}
+                <option {% if i == item.quantity %}selected {% endif %}value="{{ i }}">
+                  {{ i }}
+                </option>
+              {% endfor %}
+              <option value="10">
+                10+
+              </option>
+            </select>
+            <label class="form-field-title" for="quantity_{{ item.product.title | replace: " ", "_" }}">
+              {{ 'general.general.quantity' | t }}
+            </label>
+            {% include 'icon-library', id: 'icon-chevron-down-small' %}
+            </div>
+        </div>
+
+        <div class="form-field form-field--qty-input {% if item.quantity < 10 %}hidden{% else %}visible{% endif %}">
+          <input
+            class="form-field-input form-field-number form-field-filled"
+            value="{{ item.quantity }}"
+            name="updates[]"
+            id="updates_{{ item.key }}"
+            type="text"
+            pattern="\d*"
+            {% if item.quantity < 10 %}tabindex="-1"{% endif %}
+            aria-label="{{ 'general.general.quantity' | t }}"
+            data-quantity-input
+            data-cartitem-quantity>
+          <label class="form-field-title" for="updates_{{ item.key }}">
+            {{ 'general.general.quantity' | t }}
+          </label>
+        </div>
+      </div>
+
+      <div class="cart-item--total">
+        <span class="money" aria-live="polite" data-cartitem-total="{{ price | times: item.quantity }}">
+          {{ price | times: item.quantity | money }}
+        </span>
+      </div>
+
+      <div class="cart-item--remove">
+        <a
+          href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity=0"
+          class="cart-item--remove-link"
+          data-cartitem-remove
+          aria-label="remove {{ item.product.title }}"
+        >
+          {% include 'icon-library', id: 'icon-remove' %}
+        </a>
+      </div>
+
+    </div>
+  </div>
+</li>

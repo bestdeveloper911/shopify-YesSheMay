@@ -1,0 +1,517 @@
+{% if template contains 'article' and blog.metafields.blogfeeder.use_canonical == 'yes' %}{% assign canonical_url = article.metafields.blogfeeder.canonical %}{% endif %}
+<!doctype html>
+<html class="no-js no-touch" lang="{{ shop.locale }}">
+  <head>
+ <!-- anti-flicker snippet (recommended)  -->
+<style>.async-hide { opacity: 0 !important} </style>
+<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+})(window,document.documentElement,'async-hide','dataLayer',5000,
+{'GTM-WMQQ5DR':true});</script>    
+  {% include 'elevar-head' %}
+  {% render 'sizechartsrelentless' %}
+{%- comment -%}smartseo_integration_begin{%- endcomment -%}{% include 'smartseo' %}{%- comment -%}smartseo_integration_end{%- endcomment -%}
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="IE=edge">
+
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+    {% if settings.preconnect_facebook %}
+      <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+    {% endif %}
+    {% if settings.preconnect_google %}
+      <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+    {% endif %}
+
+    {%- comment smartseo_integration_begin_meta_data -%}<title>
+      {{- page_title -}}
+
+      {%- if current_tags -%}
+        {%- include 'advanced-tag-loop' -%}
+        {% assign title_tags = '' %}
+        {% assign meta_tags = current_tags | join: ', ' %}
+        {%- for tag in current_tags -%}
+          {% assign is_advanced_tag = false %}
+          {% assign cat = tag | split: '_' | first %}
+
+          {%- unless cat == tag -%}
+            {%- if cat_array contains cat -%}
+              {% assign is_advanced_tag = true %}
+              {% assign title_tags = title_tags | append: ', ' | append: tag | replace_first: '_', ': ' %}
+            {%- endif -%}
+          {%- endunless -%}
+
+          {%- unless is_advanced_tag -%}
+            {% assign title_tags = title_tags | append: ', ' | append: tag %}
+          {%- endunless -%}
+        {%- endfor -%}
+        {{ 'general.title.tags' | t: tags: title_tags | remove_first: ', ' }}
+      {%- endif -%}
+
+      {%- if current_page != 1 -%}
+        {{- 'general.title.page' | t: page: current_page -}}
+      {%- endif -%}
+
+      {%- unless page_title contains shop.name -%}
+        {{- 'general.title.shop' | t: shop: shop.name -}}
+      {%- endunless -%}
+    </title>{%- endcomment smartseo_integration_end_meta_data -%}
+
+    {% if page_description != blank %}
+      {%- comment smartseo_integration_begin_meta_data -%}<meta name="description" content="{{ page_description | escape }}">{%- endcomment smartseo_integration_end_meta_data -%}
+    {% endif %}
+
+    {% include 'favicon' %}
+
+    {% if template contains 'collection' and current_tags %}
+      <meta name="robots" content="noindex" />
+      <link rel="canonical" href="{{ shop.url }}{{ collection.url }}" />
+    {% else %}
+      <link rel="canonical" href="{{ canonical_url }}" />
+    {% endif %}
+
+    <meta name="viewport" content="width=device-width">
+
+    {% assign twitter_handle = settings.social_twitter | split: 'twitter.com/' | last %}
+    {%
+      include 'social-meta-tags',
+      twitter_handle: twitter_handle
+    %}
+
+    {% assign preload_styles = settings.preload_styles %}
+
+    <link rel="preload" href="{{ settings.type_menu | font_url }}" as="font" crossorigin="anonymous">
+
+    {% if preload_styles == 'await_critical_styles' %}
+      <link rel="preload" as="style" href="{{ 'theme-critical.scss.css' | asset_url }}">
+    {% else %}
+      <link rel="preload" as="style" href="{{ 'theme.scss.css' | asset_url }}">
+      <link rel="preload" as="style" href="{{ 'theme-more.scss.css' | asset_url }}">
+    {% endif %}
+  
+  {% include 'meteor-menu', load: 'head' %}
+  {{ content_for_header }}
+
+    <script>
+      document.documentElement.className=document.documentElement.className.replace(/\bno-js\b/,'js');
+      if(window.Shopify&&window.Shopify.designMode)document.documentElement.className+=' in-theme-editor';
+      if(('ontouchstart' in window)||window.DocumentTouch&&document instanceof DocumentTouch)document.documentElement.className=document.documentElement.className.replace(/\bno-touch\b/,'has-touch');
+    </script>
+
+    <script src="{{ 'api.js' | asset_url }}"></script>
+
+    {% if preload_styles == 'await_all_styles' %}
+      <link href="{{ 'theme.scss.css' | asset_url }}" rel="stylesheet" type="text/css" media="all" />
+      <link href="{{ 'theme-more.scss.css' | asset_url }}" rel="stylesheet" type="text/css" media="all" />
+    {% elsif preload_styles == 'await_critical_styles' %}
+      <link href="{{ 'theme-critical.scss.css' | asset_url }}" rel="stylesheet" type="text/css" media="all" data-styles-above-fold />
+      <link rel="preload" as="style" href="{{ 'theme.scss.css' | asset_url }}">
+      <link rel="preload" as="style" href="{{ 'theme-more.scss.css' | asset_url }}">
+    {% endif %}
+
+    {% if settings.custom_scripts_head != blank %}
+      {% unless settings.custom_scripts_head contains '<script' %}<script>{% endunless %}
+        {{ settings.custom_scripts_head }}
+      {% unless settings.custom_scripts_head contains '<script' %}</script>{% endunless %}
+    {% endif %}
+
+    {% comment %}theme-object{% endcomment %}
+    <script>
+      window.Theme = window.Theme || {};
+      window.Theme.routes = {
+        "root_url": "{{ routes.root_url }}",
+        "account_url": "{{ routes.account_url }}",
+        "account_login_url": "{{ routes.account_login_url }}",
+        "account_logout_url": "{{ routes.account_logout_url }}",
+        "account_register_url": "{{ routes.account_register_url }}",
+        "account_addresses_url": "{{ routes.account_addresses_url }}",
+        "collections_url": "{{ routes.collections_url }}",
+        "all_products_collection_url": "{{ routes.all_products_collection_url }}",
+        "search_url": "{{ routes.search_url }}",
+        "cart_url": "{{ routes.cart_url }}",
+        "cart_add_url": "{{ routes.cart_add_url }}",
+        "cart_change_url": "{{ routes.cart_change_url }}",
+        "cart_clear_url": "{{ routes.cart_clear_url }}",
+        "product_recommendations_url": "{{ routes.product_recommendations_url }}",
+      };
+    </script>
+
+{% render 'pagefly-header' %}
+
+
+{%- comment -%}Start of Clean Canvas Size Chart App code{%- endcomment -%}{% if product %}<script>ccPops=window.ccPops||{};ccPops.sizeChart=ccPops.sizeChart||{};ccPops.sizeChart.collections={{ product.collections | map: 'id' | json }};</script>{% endif %}{%- comment -%}End of Clean Canvas Size Chart App code{%- endcomment -%}
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css">
+
+
+  {% render 'shogun-head' %}
+<script id="sg-js-global-vars">
+                        sgGlobalVars = {{ shop.metafields['sg-cc']['sg-metafield'] | json }};
+                        if(sgGlobalVars) {
+                            sgGlobalVars.cart = {{ cart | json }};
+                            sgGlobalVars.currentProduct = {{ product | json }};
+                            sgGlobalVars.isAdmin = {% if content_for_header contains 'adminBarInjector' or content_for_header contains 'previewBarInjector' %}true{% else %}false{% endif %};
+                        }
+                    </script>
+    <style>
+      .desk_vis{
+      	display: none
+      }
+      .site-header-main-actions i.fa.fa-heart{
+        padding: 10px
+      }
+      @media screen and (min-width: 1024px){
+        .site-header-main-actions i.fa.fa-heart{
+        	padding: 10px
+        }
+        .site-header--basic .site-header-search-wrapper{
+        	position: unset
+        }
+        .site-header--basic .live-search-form .form-field {
+            position: relative;
+            z-index: 100;
+            display: flex;
+            height: 46px;
+            width: 50%;
+            margin: auto;
+            border: 2px solid #ccc;
+        }
+        .site-header--basic .live-search--hidden .site-header-search{
+        	visibility: visible;
+            opacity: 1;
+        }
+        .site-header--basic .live-search--hidden .live-search{
+        	display: block
+        }
+        .site-header--basic .live-search--hidden .site-header-search-wrapper{
+        	opacity: 1
+        }
+        button.site-header-button.site-header-search-close{
+        	display: none
+        }
+        .site-header--basic .live-search-form{
+        	top: 12px
+        }
+        .site-header--basic .site-header-search-button{
+        	display: none
+        }
+        .site-logo{
+        	align-items: center
+        }
+        a.site-header-button.site-header-account-button{
+        	display: none
+        }
+        .desk_vis{
+        	display: flex !important;
+            align-items: center;
+            text-decoration: unset;
+            margin-left: 40px;
+        }
+        .site-header-main-actions a.swym-wishlist {
+            margin-right: 30px;
+        }
+      }
+      @media screen and (max-width: 1023px){
+        .site-header--mobile-logo-center .site-header-search-button{
+          left: calc(-100vw + 95px);
+        }
+      }
+    </style>
+    <!-- Global site tag (gtag.js) - Google Ads: 467832543 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-467832543"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-467832543');
+</script>
+
+<script>
+  document.addEventListener('click', function(e) {
+    if (e.target.matches('.product-form--atc-button, product-form--atc-button *')) {
+      gtag('event', 'conversion', {
+        'send_to': 'AW-467832543/skMuCP6tsJIDEN-dit8B'
+      });
+    }
+  })
+
+</script>
+
+  </head>
+
+  <body
+    {% unless settings.lazy_load %}
+      data-lazy-loading-disabled
+    {% endunless %}
+    class="template-{{ template.name }} template-{{ template.name }}-{{ template.suffix }}"
+    {% if settings.enable_instantpage == true %}
+      data-instant-allow-query-string
+    {% endif %}
+  >
+  {% include 'elevar-body-end' %}
+{% capture the_snippet_content %}{% render 'socialshopwave-helper' %}{% endcapture %}
+            {% unless the_snippet_content contains 'Liquid error' %}
+              {{ the_snippet_content }}
+            {% endunless %}
+    <a class="skip-to-main" href="#site-main">{{ 'general.accessibility.skip_to_content' | t }}</a>
+    {% section 'static-announcement' %}
+    {% section 'static-utility-bar' %}
+
+    {% case settings.header_layout %}
+      {% when 'minimal' %}
+        {% section 'static-minimal-header' %}
+      {% when 'basic' %}
+        {% section 'static-basic-header' %}
+      {% else %}
+        {% section 'static-header' %}
+    {% endcase %}
+
+    {% comment %}
+      This intersection-target is for the traditional header.
+      It needs to sit outside of the sticky header, so it knows when to collapse
+    {% endcomment %}
+    {% if settings.header_layout == 'traditional' %}
+      <div class="intersection-target"></div>
+    {% endif %}
+
+    <main id="site-main" class="site-main" aria-label="Main content" tabindex="-1">
+      {% comment %}
+      {% if template == 'index' %}
+        {% section 'static-slideshow' %}
+      {% endif %}
+      {% endcomment %}
+
+      {{ content_for_layout }}
+      
+      {% comment %}
+      {% if template.name == 'page' and page_title == 'About Us' %}
+        {% section 'custom-image' %}
+      {% endif %}
+      {% endcomment %}
+    </main>
+
+
+    {% section 'static-footer' %}
+
+    {% comment %}
+      Below are various templates used in JavaScript
+    {% endcomment %}
+    <div style="display: none;" aria-hidden="true" data-templates>
+      {% include 'message-banner' %}
+      {% include 'atc-banner' %}
+    </div>
+
+    {% comment %}
+      Modal container, used on Collections, Password, and QuickShop
+    {% endcomment %}
+    {% include 'modal' %}
+
+    {% comment %}
+      This is the PhotoSwipe dialog for product galleries which needs to be in the base page
+    {% endcomment %}
+    {% include 'product-gallery-zoom' %}
+
+    {% if preload_styles != 'await_all_styles' %}
+      {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
+      {{ 'theme-more.scss.css' | asset_url | stylesheet_tag }}
+
+      {% if preload_styles == 'await_critical_styles' %}
+        <script>
+          (function(){
+            // remove above the fold styles to make sure there are no style conflicts
+            var aboveFoldStyles = document.querySelector('[data-styles-above-fold]');
+            aboveFoldStyles.parentNode.removeChild(aboveFoldStyles);
+          })();
+        </script>
+      {% endif %}
+    {% endif %}
+
+    {%- if template contains 'customer' -%}
+      {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+      {{ 'customer_area.js' | shopify_asset_url | script_tag }}
+    {%- endif -%}
+
+    {% assign theme_script = 'superstore.js' %}
+    {% if settings.use_minified_js %}
+      {% assign theme_script = 'superstore.min.js' %}
+    {% endif %}
+
+    <script
+      src="{{ theme_script | asset_url }}"
+      data-scripts
+      data-shopify-api-url="{{ 'api.jquery.js' | shopify_asset_url }}"
+      data-shopify-countries="/services/javascripts/countries.js"
+      data-shopify-common="{{ 'shopify_common.js' | shopify_asset_url }}"
+      data-shopify-cart="{{ 'jquery.cart.js' | asset_url }}"
+      data-pxu-polyfills="{{ 'polyfills.js' | asset_url }}"
+    >
+    </script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+    {% if settings.custom_styles != blank %}
+      {% unless settings.custom_styles contains '<style' %}<style>{% endunless %}
+        {{ settings.custom_styles }}
+      {% unless settings.custom_styles contains '<style' %}</style>{% endunless %}
+    {% endif %}
+
+    {% if settings.custom_scripts_footer != blank %}
+      {% unless settings.custom_scripts_footer contains '<script' %}<script>{% endunless %}
+        {{ settings.custom_scripts_footer }}
+      {% unless settings.custom_scripts_footer contains '<script' %}</script>{% endunless %}
+    {% endif %}
+
+    {% include 'structured-data' %}
+
+    <script>
+    (function () {
+      function handleFirstTab(e) {
+        if (e.keyCode === 9) { // the "I am a keyboard user" key
+          document.body.classList.add('user-is-tabbing');
+          window.removeEventListener('keydown', handleFirstTab);
+        }
+      }
+      window.addEventListener('keydown', handleFirstTab);
+    })();
+    </script>
+
+    {% include 'api' with 'page:body' %}
+    {{ page_body }}
+
+    {% if settings.enable_instantpage == true %}
+      <script
+        src="{{ 'instantPage.min.js' | asset_url }}"
+        type="module"
+        defer
+      >
+      </script>
+    {% endif %}
+
+  <script src="//cdn.codeblackbelt.com/js/modules/also-bought/main.min.js?shop=meixu-com.myshopify.com"></script>
+
+  
+
+{% include 'swymSnippet' %}
+
+ {% include 'smile-initializer' %}
+ <script type="text/jscript">
+ $(function(){
+
+    $(document).on('click', '[data-accordion-button]', function (event) {
+      event.preventDefault();
+      const $container = $(this).closest('[data-accordions-container]');
+      const $currentBtn = $(this);
+      const $currentContent = $(this).siblings('[data-accordion-content]');
+      $currentBtn.toggleClass('is-open');
+      $currentContent.slideToggle();
+      $('[data-accordion-button]', $container).not($currentBtn).removeClass('is-open');
+      $('[data-accordion-content]', $container).not($currentContent).slideUp();
+    });
+   
+      $('#product-filter-sidebar').on('click', 'h3', function() {
+         if ($(this).attr('data-toggle') === 'toggle') {
+             $(this).next().slideToggle();
+             $(this).prev().toggleClass('collapsed');
+             
+         }
+     });
+     
+	 $('.modal-content').on('click', 'h3', function() {
+         if ($(this).attr('data-toggle') === 'toggle') {
+             $(this).next().slideToggle();
+             $(this).prev().toggleClass('collapsed');
+         }
+     });
+     
+   	$('.plus-minus-toggle').on('click', function() {
+    	$(this).toggleClass('collapsed');
+        $(this).next().next().slideToggle();
+  	});
+    
+     
+     $('#notify_button').click(function(e) {
+       e.preventDefault();
+       SIPopover.show();
+     });
+ });
+ </script>
+
+ <script src="{{ 'custom.js' | asset_url }}"></script>
+ <style>
+ .navmenu-item.navmenu-item-parent.navmenu-item-count-5-up.navmenu-id-shop-by-brands.navmenu-meganav-item {
+     /* max-height: 250px; */
+     overflow: hidden;
+ }
+   body .ssw-instagram-load-more {
+     display: none !important;
+   }
+   body .site-header-main {
+     padding-bottom: 0;
+   }
+ @media screen and (max-width: 719px) {
+    #shopify-section-1596310492140{
+       /* display: none; */
+     }
+ }
+   .stamped-main-badge .stamped-badge-caption[data-reviews="0"][data-label][data-version="2"]:after { content: ' Leave A Review' !important; }
+   
+
+ </style>
+{% render 'quantity-breaks-now', customer: customer, template: template, product: product, cart: cart %}
+        {% render 'preorder-now' %}
+    
+    
+   
+    
+    
+    {% render 'back-to-the-top' %}
+    
+     <!-- Klaviyo signup form code -->
+    <script async type="text/javascript" src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=VXf5ar"></script>
+    
+    <script>
+       document.dispatchEvent(new CustomEvent("swym:collections-loaded"));
+    </script>   
+     {%include 'swym-custom'%}
+  </body>
+</html>
+
+
+<!-- Begin Shopify-Afterpay JavaScript Snippet (v1.0.10) -->
+<script type="text/javascript">
+// Overrides:
+// var afterpay_min = 0.04;            // As per your Afterpay contract.
+// var afterpay_max = 2000.00;         // As per your Afterpay contract.
+// var afterpay_cbt_enabled = false;   // As per your Afterpay contract; change to true to display Cross-Border Trade artwork (for AU/NZ).
+// var afterpay_logo_theme = 'colour'; // Can be 'colour', 'black' or 'white'.
+// var afterpay_product_selector = '#product-price-selector';
+// var afterpay_cart_integration_enabled = true;
+// var afterpay_cart_static_selector = '#cart-subtotal-selector';
+
+// Non-editable fields:
+var afterpay_shop_currency = {{ shop.currency | json }};
+var afterpay_cart_currency = {{ cart.currency.iso_code | json }};
+var afterpay_shop_money_format = {{ shop.money_format | json }};
+var afterpay_shop_permanent_domain = {{ shop.permanent_domain | json }};
+var afterpay_theme_name = {{ theme.name | json }};
+var afterpay_product = {{ product | json }};
+var afterpay_current_variant = {{ product.selected_or_first_available_variant | json }};
+var afterpay_cart_total_price = {{ cart.total_price | json }};
+var afterpay_js_snippet_version = '1.0.10';
+</script>
+<script type="text/javascript" src="https://static.afterpay.com/shopify-afterpay-javascript.js"></script>
+<script>
+  $('.slide_404').slick({
+    infinite: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: false,
+    autoplaySpeed: 3000
+  });
+</script>
+
+<!-- End Shopify-Afterpay JavaScript Snippet (v1.0.10) -->
+

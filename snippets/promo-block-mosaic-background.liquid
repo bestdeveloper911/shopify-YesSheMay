@@ -1,0 +1,53 @@
+{%- comment -%}
+  @param blocks {array}
+    Array of blocks to iterate block stylings through
+{%- endcomment -%}
+
+<style>
+  {% for block in blocks %}
+    .promo-block-mosaic--{{ block.id }} {
+      {% if block.settings.color != blank %}
+        color: {{ block.settings.color }};
+      {% endif %}
+
+      {% unless block.settings.image %}
+        {%- capture bg_image -%}
+
+          {%-
+            include 'placeholder_svg_uri'
+            placeholder: 'image'
+           -%}
+        {%- endcapture -%}
+        background-image: url('{{ bg_image | strip_newlines }}');
+      {% endunless %}
+    }
+
+    {% if block.settings.overlay_style != 'none'
+      and block.settings.background != blank
+      and block.settings.background != 'rgba(0,0,0,0)'
+    %}
+      {% assign opacity = block.settings.opacity | times: 0.01 %}
+
+      {% if section.settings.text_alignment contains 'top' %}
+        {% assign text_position = 'top' %}
+      {% elsif section.settings.text_alignment contains 'bottom' %}
+        {% assign text_position = 'bottom' %}
+      {% else %}
+        {% assign text_position = section.settings.text_alignment | remove: 'center-' %}
+      {% endif %}
+
+      .promo-block-mosaic--{{ block.id }} .promo-block-mosaic--content {
+        {% if block.settings.overlay_style == 'solid' %}
+          background-color: {{ block.settings.background | color_modify: 'alpha', opacity }};
+        {% else %}
+          background: {%
+            include 'gradient',
+            color: block.settings.background,
+            opacity: opacity,
+            text_position: text_position,
+          %};
+        {% endif %}
+      }
+    {% endif %}
+  {% endfor %}
+</style>

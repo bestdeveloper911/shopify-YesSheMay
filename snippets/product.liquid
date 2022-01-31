@@ -1,0 +1,318 @@
+{% comment %}
+  @param layout {String}
+    Layout type
+
+  @param show_description {Bool}
+    If false, hide the product description
+
+  @param gallery_aspect_ratio {string}
+    This is the gallery aspect ratio, can be one of 'natural', 'short', 'square', 'long'
+
+  @param gallery_thumbnail_position {string}
+    This is the gallery thumbnail position, can be one of 'below', or 'left'
+
+  @param gallery_image_crop {boolean}
+    Whether to crop images
+
+  @param gallery_hover_zoom {String}
+    This is the hover zoom setting, which is either 'disabled', 'separate', or 'replace'
+
+  @param gallery_click_to_zoom {String}
+    This is the click to zoom setting, which is either 'disabled', 'mobile', 'desktop', or 'always'
+{% endcomment %}
+
+{% unless show_description %}
+  {% assign show_description = true %}
+{% endunless %}
+{% assign enable_social_sharing = settings.product_social_sharing %}
+{% assign selected_variant = product.selected_or_first_available_variant %}
+{% assign selected_image = selected_variant.image | default: product.featured_image %}
+{% assign compare_at_price = selected_variant.compare_at_price %}
+{% assign price = selected_variant.price %}
+{% assign sku = selected_variant.sku %}
+{% assign product_available = product.available %}
+
+{%
+  include 'api' with 'variant:price',
+  product: product,
+  variant: selected_variant,
+%}
+
+{% if onboarding %}
+  {% assign compare_at_price = 2999 %}
+  {% assign price = 1999 %}
+{% endif %}
+
+{% assign on_sale = false %}
+{% if compare_at_price > price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{%- capture share_buttons -%}
+  {% assign social_image = false %}
+  {% if product.featured_image %}
+    {% assign social_image = product.featured_image | img_url: '1024x' %}
+  {% endif %}
+  {% assign social_url = shop.url | append: product.url %}
+  {%-
+    include 'share-buttons',
+    snippet_title: 'general.share_buttons.title',
+    social_image: social_image,
+    social_title: product.title,
+    social_url: social_url
+  -%}
+{%- endcapture  -%}
+
+<article class="product--outer">
+  {% comment %}
+    Product slideshow, never moves
+  {% endcomment %}
+  {%
+    include 'product-gallery',
+    selected_image: selected_image,
+    is_product_modal: false,
+    aspect_ratio: gallery_aspect_ratio,
+    thumbnail_position: gallery_thumbnail_position,
+    image_crop: gallery_image_crop,
+    click_to_zoom: gallery_click_to_zoom,
+    hover_zoom: gallery_hover_zoom,
+    onboarding: onboarding,
+  %}
+  <div class="product-main">
+    <div class="product-details" data-product-details>
+      {% if template == 'index' %}
+        <h2 class="product-title">
+      {% else %}
+        <h1 class="product-title">
+      {% endif %}
+        {% unless onboarding %}
+          {{ product.title }}
+        {% else %}
+          {{ 'onboarding.product.title' | t }}
+        {% endunless %}
+      {% if template == 'index' %}
+        </h2>
+      {% else %}
+        </h1>
+      {% endif %}
+
+      {% if settings.product_show_vendor and product.vendor != blank or onboarding %}
+      {% assign vendorHandle = product.vendor | handle %}
+        <div class="product-vendor" {% if product.vendor == 'Yes She May' %}data--hidden{% endif %}>
+          {% unless onboarding %}
+            {%- capture vendor_link -%}
+              {{ product.vendor | link_to_vendor }}
+            {%- endcapture -%}
+          	{% if collections[vendorHandle].products.size > 0 %}
+          	 <p><a href="{{ collections[vendorHandle].url }}">{{ collections[vendorHandle].title }}</a></p>
+            {% assign theBrandUrl = collections[vendorHandle].url %}
+          	{% else %}
+          	 {{ 'product.general.by_vendor_html' | t: vendor_link: vendor_link }}
+             {% assign theBrandUrl = "/collections/vendors?q=" | append: product.vendor %}
+          	{% endif %}
+          {% else %}
+            {{ 'onboarding.product.by_vendor' | t }}
+          {% endunless %}
+        </div>
+      {% endif %}
+      
+<!-- Stamped - Begin Star Rating Badge --><span class="stamped-product-reviews-badge stamped-main-badge" data-id="{{ product.id }}" data-product-sku="{{ product.handle }}" data-product-type="{{product.type}}" data-product-title="{{product.title}}" style="display: inline-block;">{{ product.metafields.stamped.badge }}</span><!-- Stamped - End Star Rating Badge -->
+
+      <div class="product-pricing" aria-live="polite">
+        {%
+          include 'product-badge',
+          product: product,
+          class_root: 'product',
+          product_available: product_available,
+          on_sale: on_sale,
+          price: price,
+          compare_at_price: compare_at_price,
+          show_saved: true
+        %}
+
+        {%
+          include 'product-price',
+          product: product,
+          show_vday: true,
+          class_root: 'product',
+          price: price,
+          price_varies: false,
+          compare_at_price: compare_at_price,
+          compare_at_price_varies: false,
+          on_sale: on_sale,
+          emphasize_price: false,
+          show_original: true
+        %}
+      </div>
+
+      {% if product.tags contains 'FinalSale' %}
+        <div class="badge-order-soon">Just a few left - order soon!</div>
+      {% endif %}
+
+      {% if product.tags contains 'Sale Default' %}
+
+        <div class="discount_table">
+          <div class="table_header">Friends & Family Sale!</div>
+          <div class="table_content">
+            <div>Spend $150, Get $20 Off</div>
+            <div>Spend $250, Get $50 Off</div>
+            <div>Spend $400, Get $100 Off</div>
+          </div>
+        </div>
+
+      {% endif %}
+
+      {% if product.tags contains 'BFCM Sale' %}
+
+        <div class="discount_table text-center">
+          <div class="table_header">Black Friday Sale!</div>
+          <div class="table_content">
+            <!-- <div>Save 20% on eligible products</div> -->
+            <div>20% Off Automatically Applied at Checkout</div>
+          </div>
+        </div>
+
+      {% endif %}
+
+      {% if settings.product_show_sku == true %}
+        {% unless onboarding %}
+          <div
+            class="
+              product-sku
+              {% if sku == empty %}product-sku--empty{% endif %}
+            "
+          >
+            {{ 'product.general.sku_html' | t: sku: sku | strip_newlines }}
+          </div>
+        {% endunless %}
+      {% endif %}
+    </div>
+
+    {% comment %}
+      Product form original location, will remain unless is 3 column layout
+    {% endcomment %}
+    {%- assign product_sold_out = false -%}
+    {%- if settings.in_stock_notification_form != 'disabled' and product.available == false -%}
+      {%- assign product_sold_out = true -%}
+    {%- endif -%}
+    <div class="product-form--regular" data-product-form-regular>
+      <div {% if product_sold_out %}class="product-sold-out"{% endif %} data-product-form-area>
+        {% unless onboarding %}
+          {% if template.suffix != 'onebox' %}
+            {%
+              include 'product-form',
+              product: product,
+              selected_variant: selected_variant,
+              is_product_modal: false,
+            %}
+          {% else %}
+            {%
+              include 'product-form-onebox',
+              product: product,
+              selected_variant: selected_variant,
+              is_product_modal: false,
+            %}
+          {% endif %}
+          {%- if settings.in_stock_notification_form != 'disabled' -%}
+            {%
+              include 'product-in-stock-notification-form',
+              product: product,
+            %}
+          {%- endif -%}
+        {% endunless %}
+
+        {% unless show_description %}
+          <a
+            href="{{ product.url | within: collection }}"
+            class="product-link"
+            data-product-details-link
+          >
+            {{ 'product.buttons.view_details' | t }}
+          </a>
+        {% endunless %}
+
+        <style>
+        #delivery_section {
+            margin-top: 1rem;
+        }
+        #delivery_section b {
+            font-weight: 700;
+            display: block;
+        }
+        #delivery_section span {
+            display: block;
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+            color: rgb(124, 120, 115);
+        }
+          #see__more_brand {
+            padding-top: 40px;
+        }
+        #see__more_brand a{
+            color: #EC0A7A;
+            font-size: 1.2rem;
+        }
+        </style>
+
+        {%- unless product.available -%}
+          <button id="notify_button">Notify when available</button>
+          <style>
+          #notify_button {
+              width: 15rem;
+              height: 3.5rem;
+              margin-top: 1rem;
+              border: 0;
+              background: rgb(0, 0, 0);
+              color: #fff;
+          }
+          /* body #submit-btn {
+              background: #F3027A;
+          }
+          body #submit-btn {
+              background: #F3027A;
+          } */
+          </style>
+        {%- endunless -%}
+
+        {% if enable_social_sharing %}
+          {{ share_buttons | strip_newlines }}
+        {% endif %}
+
+
+        <div id="see__more_brand" {% if product.vendor == 'Yes She May' %}data--hidden{% endif %}>
+          <a href="{{theBrandUrl}}">See more from brand</a>
+        </div>
+      </div>
+    </div>
+
+    {% comment %}
+      Product description field, never moves
+    {% endcomment %}
+
+
+    {% capture product_description %}{%- include 'shortcode-readmore', text: product.description, before_readmore: true -%}{% endcapture %}
+    {% if product_description != blank and show_description %}
+      <div class="product-description rte" data-product-description>{{ product_description }}</div>
+    {% endif %}
+
+    {% if product.metafields.meta.title != blank %}
+        {% render 'product-meta-info', product: product %}
+    {% endif %}
+
+  </div>
+
+  {% comment %}
+    If is a 3 column layout, the form will move here at $bp-large (layout.isBreakpoint('L'))
+  {% endcomment %}
+  {% if layout == 'layout--three-col' %}
+    <div class="product-form--alt {% if product.handle == 'rise-ai-giftcard' %}product-form-gift{% endif %}" data-product-form-alt></div>
+  {% endif %}
+
+  {% capture product_readmore %}{%- include 'shortcode-readmore', text: product.description -%}{% endcapture %}
+  {% unless featured or product_readmore == blank %}
+    <div class="product-readmore rte">{{ product_readmore }}</div>
+  {% endunless %}
+</article>
+
+{% assign show_description = blank %}
+{% assign layout = blank %}

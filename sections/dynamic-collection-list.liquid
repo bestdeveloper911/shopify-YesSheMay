@@ -1,0 +1,445 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .dynamic-collection-list--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .dynamic-collection-list--container .home-section--subheading,
+  #shopify-section-{{section.id}} .dynamic-collection-list--container .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+
+  @media (max-width: 720px) {
+    #shopify-section-{{section.id}} .dynamic-collection-list--container {
+      padding-top: {{ section.settings.section_spacing_mobile }}px;
+      padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+    }
+
+    #shopify-section-{{section.id}} .mobile-custom-width .collection--item-image {
+      max-width: {{ section.settings.mobile_collection_max_width }}px;
+    }
+
+    #shopify-section-{{section.id}} .mobile-custom-width.text-align-left .dynamic-collection-list--item-info {
+      max-width: {{ section.settings.mobile_collection_max_width }}px;
+    }
+
+    #shopify-section-{{section.id}} .mobile-custom-width.text-align-right .dynamic-collection-list--item-info {
+      max-width: {{ section.settings.mobile_collection_max_width }}px;
+    }
+  }
+
+  @media (min-width: 720px) {
+    #shopify-section-{{section.id}} .dynamic-collection-list--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+
+    #shopify-section-{{section.id}} .desktop-custom-width .collection--item-image {
+      max-width: {{ section.settings.desktop_collection_max_width }}px;
+    }
+
+    #shopify-section-{{section.id}} .desktop-custom-width.text-align-left .dynamic-collection-list--item-info {
+      max-width: {{ section.settings.desktop_collection_max_width }}px;
+    }
+
+    #shopify-section-{{section.id}} .desktop-custom-width.text-align-right .dynamic-collection-list--item-info {
+      max-width: {{ section.settings.desktop_collection_max_width }}px;
+    }
+
+    #shopify-section-{{section.id}} .desktop-custom-width.dynamic-collection-list--inner {
+      max-width: {{ section.settings.layout_collection_max_width }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}} .dynamic-collection-list--item-info {
+    text-align: {{ section.settings.text_alignment }};
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-collection-list"
+>
+</script>
+
+<section class="dynamic-collection-list--container">
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="home-section--title-container" >
+    {% if section.settings.title != blank %}
+      <h2 class="home-section--title">
+        {{ section.settings.title | escape }}
+      </h2>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <div class="home-section--subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+    </div>
+  {% endif %}
+
+  {%- assign label_style = section.settings.label_style -%}
+  {%- assign text_alignment = section.settings.text_alignment-%}
+  {%- assign desktop_collections_per_row = section.settings.desktop_collections_per_row -%}
+  {%- assign desktop_rows = section.settings.display_desktop_collections -%}
+  {%- assign mobile_collections_per_row = section.settings.mobile_collections_per_row -%}
+  {%- assign mobile_rows = section.settings.display_mobile_collections -%}
+  {%- assign mobile_width = section.settings.mobile_collection_width -%}
+  {%- assign desktop_width = section.settings.desktop_collection_width -%}
+  {%- assign layout_width = section.settings.layout_collection_max_width -%}
+  {%- assign desktop_collection_number = desktop_collections_per_row | times: desktop_rows -%}
+  {%- assign mobile_collection_number = mobile_collections_per_row | times: mobile_rows -%}
+  {%- assign desktop_active_class = 'active' -%}
+  {%- assign mobile_active_class = 'active-mobile' -%}
+
+  {% if section.blocks.size > 0 %}
+    <ul class="
+        home-section--content
+        dynamic-collection-list--inner
+        {{ label_style }}
+        desktop-collections-per-row-{{ desktop_collections_per_row }}
+        mobile-collections-per-row-{{ mobile_collections_per_row }}
+        text-align-{{ text_alignment }}
+        {{ mobile_width }}
+        {{ desktop_width }}
+    ">
+      {% for block in section.blocks %}
+        {% assign collection = collections[block.settings.collection] %}
+        {% assign collection_title = collection.title %}
+        {% assign collection_url = collection.url %}
+
+        {% assign featured_image = false %}
+        {% assign featured_image_alt = '' %}
+
+        {% if block.settings.image %}
+          {% assign featured_image = block.settings.image %}
+          {% assign featured_image_alt = block.settings.image.alt | escape %}
+        {% endif %}
+
+        {%- if forloop.index > desktop_collection_number and desktop_collection_number != 0 -%}
+          {%- assign desktop_active_class = blank -%}
+        {%- endif -%}
+
+        {%- if forloop.index > mobile_collection_number and mobile_collection_number != 0 -%}
+          {%- assign mobile_active_class = blank -%}
+        {%- endif -%}
+
+        {%
+          include 'dynamic-collection-list-item',
+          block: block,
+          collection_image: featured_image,
+          collection_image_alt: featured_image_alt,
+          desktop_active_class: desktop_active_class,
+          mobile_active_class: mobile_active_class
+        %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {%- if desktop_collection_number > 0 and section.blocks.size > desktop_collection_number -%}
+    {%- assign desktop_button_active = 'active' -%}
+  {%- endif -%}
+
+  {%- if mobile_collection_number > 0 and section.blocks.size > mobile_collection_number -%}
+    {%- assign mobile_button_active = 'active-mobile' -%}
+  {%- endif -%}
+
+  <button class="
+    button-secondary
+    dynamic-collection-list--show-more-button
+    {{ desktop_button_active }}
+    {{ mobile_button_active }}
+  ">
+    Show more
+  </button>
+</section>
+
+{% schema %}
+{
+  "name": "Collection list",
+  "class": "dynamic-collection-list--section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Collection list"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type":      "header",
+      "content":   "Appearance"
+    },
+    {
+      "type": "select",
+      "id": "label_style",
+      "label": "Collection title font",
+      "options": [
+        {
+          "value": "label-style-heading",
+          "label": "Heading"
+        },
+        {
+          "value": "label-style-body",
+          "label": "Body"
+        }
+      ],
+      "default": "label-style-heading"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type":      "header",
+      "content":   "Desktop"
+    },
+    {
+      "type": "range",
+      "id": "desktop_collections_per_row",
+      "label": "Collections per row",
+      "min":       3,
+      "max":       6,
+      "step":      1,
+      "default":   3
+    },
+    {
+      "type": "select",
+      "id": "display_desktop_collections",
+      "label": "Number of rows",
+      "options": [
+        {
+          "value": "0",
+          "label": "Show all collections"
+        },
+        {
+          "value": "2",
+          "label": "2 rows"
+        },
+        {
+          "value": "3",
+          "label": "3 rows"
+        },
+        {
+          "value": "4",
+          "label": "4 rows"
+        },
+        {
+          "value": "5",
+          "label": "5 rows"
+        }
+      ],
+      "default": "2",
+      "info": "Customers can reveal hidden collections by clicking “Show All.”"
+    },
+    {
+      "type":      "radio",
+      "id":        "desktop_collection_width",
+      "label":     "Layout",
+      "options": [
+        { "value": "desktop-full-width", "label": "Full width" },
+        { "value": "desktop-custom-width", "label": "Custom width" }
+      ],
+      "default":   "desktop-full-width"
+    },
+    {
+      "type":      "range",
+      "id":        "layout_collection_max_width",
+      "label":     "Custom layout max width",
+      "min":       700,
+      "max":       1600,
+      "step":      10,
+      "unit":      "px",
+      "default":   1000
+    },
+    {
+      "type":      "range",
+      "id":        "desktop_collection_max_width",
+      "label":     "Custom collection max width",
+      "min":       75,
+      "max":       500,
+      "step":      5,
+      "unit":      "px",
+      "default":   300
+    },
+    {
+      "type":      "header",
+      "content":   "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "mobile_collections_per_row",
+      "label": "Collections per row",
+      "min":       1,
+      "max":       3,
+      "step":      1,
+      "default":   3
+    },
+    {
+      "type": "select",
+      "id": "display_mobile_collections",
+      "label": "Number of rows",
+      "options": [
+        {
+          "value": "0",
+          "label": "Show all collections"
+        },
+        {
+          "value": "2",
+          "label": "2 rows"
+        },
+        {
+          "value": "3",
+          "label": "3 rows"
+        },
+        {
+          "value": "4",
+          "label": "4 rows"
+        },
+        {
+          "value": "5",
+          "label": "5 rows"
+        }
+      ],
+      "default": "2",
+      "info": "Customers can reveal hidden collections by clicking “Show All.”"
+    },
+    {
+      "type":      "radio",
+      "id":        "mobile_collection_width",
+      "label":     "Layout",
+      "options": [
+        { "value": "mobile-full-width", "label": "Full width" },
+        { "value": "mobile-custom-width", "label": "Custom width" }
+      ],
+      "default":   "mobile-full-width"
+    },
+    {
+      "type":      "range",
+      "id":        "mobile_collection_max_width",
+      "label":     "Custom collection max width",
+      "min":       50,
+      "max":       500,
+      "step":      5,
+      "unit":      "px",
+      "default":   80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        {
+          "id": "collection",
+          "type": "collection",
+          "label": "Collection"
+        },
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Custom image"
+        },
+        {
+          "id": "collection_label",
+          "type": "text",
+          "label": "Custom collection title"
+        },
+        {
+          "id": "mobile_collection_label",
+          "type": "text",
+          "label": "Custom collection title (mobile)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection list",
+      "category": "Collection",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

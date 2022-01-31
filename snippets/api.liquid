@@ -1,0 +1,25 @@
+{%- capture _ -%}
+{% comment %}
+  This is the API layer shipped as a part of the theme.
+
+  Integrations are meant to add their own snippet that implements hooks, then
+  include it here.
+{% endcomment %}
+
+{% comment %}
+  The theme's default implementation of the API hooks. This is loaded first so
+  that integrations can override its bahaviour.
+{% endcomment %}
+{% include 'api-theme' %}
+
+{% comment %}
+  Integrations can use the following identifier to automate the injection of
+  their snippets.
+
+  Integrations can still conflict with each other, so this file can be manually
+  edited to debug issues or determine which integration partner needs to be
+  contacted.
+{% endcomment %}
+<!--API_AUTO_INJECT-->
+
+{%- endcapture -%}

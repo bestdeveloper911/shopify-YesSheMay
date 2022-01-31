@@ -1,0 +1,38 @@
+{%- comment -%}
+  @param blocks {array}
+    Array of blocks to iterate block stylings through
+{%- endcomment -%}
+
+<style>
+  {% for block in blocks %}
+    {% if block.settings.overlay_style != 'none'
+      and block.settings.overlay_color != 'rgba(0,0,0,0)'
+      and block.settings.overlay_color != blank
+    %}
+      .slideshow-slide-overlay--{{ block.id }} {
+        {% if block.settings.overlay_style == 'solid' %}
+          background-color: {{ block.settings.overlay_color }};
+        {% elsif block.settings.overlay_style == 'gradient' %}
+          background: {%
+            include 'gradient',
+            color: block.settings.overlay_color,
+            text_position: block.settings.text_alignment,
+          %};
+        {% endif %}
+        opacity: {{ block.settings.overlay_opacity | divided_by: '100.00' }};
+      }
+    {% endif %}
+
+    .slideshow-height-fullscreen + .slideshow-slide-content--{{ block.id }} .slideshow-slide-heading,
+    .slideshow-height-fullscreen + .slideshow-slide-content--{{ block.id }} .slideshow-slide-text {
+      color: {{ block.settings.color }};
+    }
+
+    @media (min-width: 720px) {
+      .slideshow-slide-content--{{ block.id }} .slideshow-slide-heading,
+      .slideshow-slide-content--{{ block.id }} .slideshow-slide-text {
+        color: {{ block.settings.color }};
+      }
+    }
+  {% endfor %}
+</style>

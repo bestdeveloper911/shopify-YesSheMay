@@ -1,0 +1,526 @@
+<script
+  type="application/json"
+  data-section-type="static-collection"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "context": {
+      "see_more": {{ 'general.general.see_more' | t | json }},
+      "see_less": {{ 'general.general.see_less' | t | json }}
+    }
+  }
+</script>
+
+{% assign show_sidebar = false %}
+{% assign show_filters = true %}
+{% assign show_filter_trigger = false %}
+
+{% if section.settings.filter_style == 'none' %}
+  {% assign show_filters = false %}
+{% endif %}
+
+{% if section.settings.show_sidebar %}
+  {% comment %}
+    Sidebar toggle is used on mobile only, and will only show Filters
+  {% endcomment %}
+
+  {% if collection.all_tags.size > 0 and show_filters %}
+    {% assign show_filter_trigger = true %}
+  {% endif %}
+
+  {% if section.blocks.size > 0 or collection.all_tags.size > 0 and show_filters %}
+    {% comment %}
+      Sidebar to show only if there are tags in the collection, or there are menus
+    {% endcomment %}
+    {% assign show_sidebar = true %}
+  {% endif %}
+{% endif %}
+
+{% assign need_show_breadcrumbs = true %}
+{% assign isCBD = false %}
+{% assign brand_tags = "Raizo,Soul Juc,Soie Jardin,Helen Jon,Mooelpom,YoYo Taylor,L'or De Seraphine,YSM,WOLF,Retro Chic,Cici Dream,Comfy Comfy,LAMARQUE,nude,(nude),etoile,Jiran Design,YSM Discovery,Alexandra De Curtis,Solo Seta,Rhonda Cole,La Femme Apero,Connor & Blake,Summer Discovery,Tarliza Schall,Carmen Sol,LEYT,Be You CBD,CBD For Life,Ally NYC,Soko,KAYU,Tealeaves,Merchants of Beauty,Feller Clothing,Anna New York,NUDE,Hestia,Hush Body Shapewear,Liquido Active,Kulae Inc.,Rico Cao,Influencer-ChrisHan,Jamie Slye,Avery Rose,La Bella Donna,Haris Cotton,Lavish,Glenn + Glenn,Aremes Fermentis,Wei Beauty,Double X,Orising USA,CBD For Life,Andreza Chagas,Sauipe,Paula Torres,Keiki Co,Snowman,Vi Versa,Pamir,1Canoe2,Viversa,Modern Theory,Bohemian Made Design,Be You CBD Collection,Stivali,MIA Peru,SociaLite,M Street Studio,Luna Norte,Particle Fever,Whisper,L'Duex,lduex,RORA,Ankaa Beauty,Bonajour,Cherapy,Chesapeake Bay Candle,Ellender,Henny Faire,Kehei Traveler,Kinaloon,La Belle Vie Paris,Loom.ist,Meet Knits,Milsouls,Moonlit,P.MAI,SEEN,Swell Skin,Tall Order,Unsun,Yes She May,Dame,Jenny Bird,Ankaa" | split: "," %}
+{% if brand_tags contains collection.title %}
+  {% assign show_sidebar = false %}
+  {% assign show_filters = false %}
+  {% assign need_show_breadcrumbs = false %}
+  <style>
+  body .collection--title {
+      display: none;
+  }
+  </style>
+{% endif %}
+
+{% assign theFilterBrands = "Be You CBD Collection,Chesapeake Bay Candle" | split: "," %}
+{% if theFilterBrands contains collection.title %}
+    {% assign isCBD = true %}
+{% endif %}
+
+{% assign paginate_by = section.settings.products_per_page_range %}
+{% if template contains 'view-24' %}
+  {% assign paginate_by = 24 %}
+{% elsif template contains 'view-36' %}
+  {% assign paginate_by = 36 %}
+{% elsif template contains 'view-48' %}
+  {% assign paginate_by = 48 %}
+{% endif %}
+
+{%- capture collection_classes -%}
+  {% if show_sidebar %}
+    layout--has-sidebar
+  {% else %}
+    layout--no-sidebar
+  {% endif %}
+{%- endcapture -%}
+
+{% paginate collection.products by paginate_by %}
+  <div class="productgrid--outer {{ collection_classes | strip_newlines }}">
+    {% if show_sidebar %}
+      {%
+        include 'product-grid-sidebar',
+        filter_style: section.settings.filter_style,
+        filter_position: section.settings.filter_position,
+        filter_limit: section.settings.filter_limit,
+        menu_depth: section.settings.menu_depth_range
+      %}
+    {% endif %}
+
+    <div class="productgrid--wrapper">
+      {%- if section.settings.show_breadcrumbs and need_show_breadcrumbs -%}
+        {% include 'breadcrumbs' %}
+      {%- endif -%}
+
+      <div
+        class="
+          productgrid--masthead
+          {% unless section.settings.show_breadcrumbs %}no-breadcrumbs{% endunless %}
+        "
+      >
+        {% if section.settings.show_collection_image and collection.image %}
+          <figure class="collection--image">
+            {%
+              include 'rimg',
+              img: collection.image,
+              size: '1350x',
+              lazy: settings.lazy_load,
+              canvas: settings.lazy_load
+            %}
+          </figure>
+        {% endif %}
+
+        <div class="collection--information">
+          <h1 class="collection--title">
+            {{ collection.title }}
+          </h1>
+
+          {% if collection.description != blank %}
+            <div class="collection--description rte">
+              {{ collection.description }}
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+
+      <div class="results--container" data-html="productgrid">
+        <div class='processing-overlay'>
+        </div>
+
+        {% if current_tags.size > 0 %}
+          <div class="productgrid--filters">
+            {%- include 'product-grid-tags-active' %}
+          </div>
+        {% endif %}
+
+      {% comment %}
+      -----
+      {% for tag in current_tags %}
+      <p>{{ tag }}</p>
+      {% endfor %}
+
+      {% for product in collection.products %}
+        {{product.title}}<br/>
+      {% endfor %}
+      -----
+      {% endcomment %}
+
+      {% if show_filter_trigger or section.settings.sort_by or section.settings.show_by or section.settings.grid_list %}
+        {% capture utility_class %}
+          productgrid--utils
+
+          {% if show_filter_trigger or section.settings.sort_by or section.settings.grid_list %}
+            productgrid--utils--visible-mobile
+          {% endif %}
+
+          {% unless section.settings.show_by or section.settings.sort_by or section.settings.grid_list %}
+            productgrid--utils--hidden-desktop
+          {% endunless %}
+        {% endcapture %}
+        <nav
+          class="{{ utility_class | strip_newlines }}"
+          aria-label="{{ 'general.accessibility.nav_collection_utilities' | t }}"
+        >
+          {% if show_filter_trigger %}
+            {%- assign filter_count = 0 -%}
+            {%- if current_tags.size > 0 -%}
+              {%- assign filter_count = current_tags.size -%}
+            {%- endif -%}
+            <div class="productgrid--utils utils-filter">
+              <button
+                class="utils-filter-button"
+                type="button"
+                aria-label="{{ 'product_grid.filters.title_count' | t: count: filter_count }}"
+                data-productgrid-trigger-filters
+              >
+                <span class="utils-filter-icon">
+                  {%- include 'icon-library', id: 'icon-filters' -%}
+                </span>
+                <span class="utils-filter-text">
+                  {{- 'product_grid.filters.title_count' | t: count: filter_count -}}
+                </span>
+              </button>
+            </div>
+          {% endif %}
+
+          {%- if section.settings.sort_by -%}
+            {%-
+              include 'product-grid-sortby',
+              type: 'select',
+            -%}
+          {%- endif -%}
+
+          {%- if section.settings.show_by or section.settings.grid_list -%}
+            <div
+              class="
+                productgrid--utils
+                utils-view
+                {% if section.settings.grid_list == false %}
+                  utils-hide
+                {% endif %}
+              "
+            >
+              <div class="utils-view-container">
+                {%- if section.settings.show_by -%}
+                  {%-
+                    include 'product-grid-showby',
+                    show_by: paginate_by,
+                    grid_list: section.settings.grid_list
+                  -%}
+                {%- endif -%}
+
+                {% if section.settings.grid_list %}
+                  <div class="utils-viewtoggle">
+                    <span class="utils-viewtoggle-label">
+                      {{ 'product_grid.view_as.title' | t }}
+                    </span>
+
+                    <button
+                      class="utils-viewtoggle-button active"
+                      data-collection-view="grid-view"
+                      aria-label="grid view"
+                    >
+                      {% include 'icon-library', id: 'icon-grid' %}
+                    </button>
+
+                    <button
+                      class="utils-viewtoggle-button"
+                      data-collection-view="list-view"
+                      aria-label="list view"
+                    >
+                      {% include 'icon-library', id: 'icon-list' %}
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {%- endif -%}
+        </nav>
+      {% endif %}
+
+      {% include 'icon-library', id: 'icon-loading' %}
+
+      {% if collection.products.size > 0 %}
+
+      {% comment %}
+      {% for product in collection.products %}
+        {% for variant in product.variants %}
+        <div><b>{{ product.title }}：</b> {{ variant.title }},--- {{ variant.option1 }}, {{ variant.option2 }}</div>
+        {% endfor %}
+      {% endfor %}
+      {% endcomment %}
+
+        <ul
+          class="
+            productgrid--items
+            {% if settings.enable_product_card_spacing == false %}productgrid--no-spacing{% endif %}
+          "
+          data-html="productgridItems"
+        >
+          {% for product in collection.products %}
+            {% if product.options contains "Color" %}
+              {% for color_option in product.options_by_name['Color'].values limit:3 %}
+                {%
+                  include 'product-grid-item',
+                  product: product,
+                  custom_color: color_option,
+                %}
+              {% endfor %}
+            {% elsif product.options contains "Style" %}
+              {% for style_option in product.options_by_name['Style'].values limit:3%}
+                {%
+                  include 'product-grid-item',
+                  product: product,
+                  custom_color: style_option,
+                  show_more_price: isCBD,
+                  min_price: product.price_min,
+                  max_price:  product.price_max
+                %}
+              {% endfor %}
+            {% else %}
+                {%
+                    include 'product-grid-item',
+                    product: product,
+                    show_more_price: isCBD,
+                    min_price: product.price_min,
+                    max_price:  product.price_max
+                %}
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="productgrid--no-results">
+          <h2 class="productgrid--no-results-title">
+            {%- if collection.all_products_count == 0 -%}
+              {{ 'product_grid.no_results.empty' | t }}
+            {%- else -%}
+              {{ 'product_grid.no_results.tags_empty' | t }}
+            {%- endif -%}
+          </h2>
+
+          <a class="productgrid--no-results-button" href="{{ routes.all_products_collection_url }}">
+            {{ 'search.general.view_all_products' | t }}
+          </a>
+        </div>
+      {% endif %}
+
+      {%
+        include 'pagination',
+        pagination_type: section.settings.pagination
+      %}
+    </div>
+  </div>
+  {% endpaginate %}
+  </div>
+
+{%- if section.settings.sort_by -%}
+  {%-
+    include 'product-grid-sortby',
+    type: 'modal',
+  -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Collection pages",
+  "class": "collection--section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumb navigation",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "Show collection image",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "products_per_page_range",
+      "label": "Products per page",
+      "min": 24,
+      "max": 48,
+      "step": 12,
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "pagination",
+      "label": "Pagination method",
+      "options": [
+        {
+          "value": "click_to_load",
+          "label": "Click-to-load"
+        },
+        {
+          "value": "infinite_scroll",
+          "label": "Infinite scroll"
+        },
+        {
+          "value": "traditional",
+          "label": "Jump-to-page"
+        }
+      ],
+      "default": "click_to_load"
+    },
+    {
+      "type": "header",
+      "content": "Utility bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "sort_by",
+      "label": "Show \"Sort by\" dropdown",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_by",
+      "label": "Show products per page links",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "grid_list",
+      "label": "Show grid/list view toggle",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Sidebar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sidebar",
+      "label": "Show sidebar",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_toggle",
+      "label": "Use Slide down/up style",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "filter_style",
+      "label": "Filters",
+      "info":"[Learn more](https://support.pixelunion.net/hc/en-us/articles/360022061114)",
+      "options": [
+        {
+          "value": "none",
+          "label": "Hide filters"
+        },
+        {
+          "value": "tags",
+          "label": "By tag"
+        },
+        {
+          "value": "groups",
+          "label": "By group"
+        }
+      ],
+      "default": "tags"
+    },
+    {
+      "id": "filter_limit",
+      "type": "select",
+      "label": "Hide additional tags after",
+      "options": [
+        {
+          "value": "5",
+          "label": "5 tags"
+        },
+        {
+          "value": "6",
+          "label": "6 tags"
+        },
+        {
+          "value": "8",
+          "label": "8 tags"
+        },
+        {
+          "value": "10",
+          "label": "10 tags"
+        },
+        {
+          "value": "15",
+          "label": "15 tags"
+        },
+        {
+          "value": "20",
+          "label": "20 tags"
+        },
+        {
+          "value": "999",
+          "label": "Show all tags"
+        }
+      ],
+      "default": "999"
+    },
+    {
+      "type": "select",
+      "id": "filter_position",
+      "label": "Filters position",
+      "options": [
+        {
+          "value": "above_menus",
+          "label": "Above menus"
+        },
+        {
+          "value": "below_menus",
+          "label": "Below menus"
+        }
+      ],
+      "default": "above_menus"
+    },
+    {
+      "type":      "text",
+      "id":        "grid_categories",
+      "label":     "Display filters as grid",
+      "info":      "List groups to display in an alternate grid format, like “Size, Price”. [Learn more](https://support.pixelunion.net/hc/en-us/articles/360022061114-Setting-up-Superstore-s-sidebar-filter-and-menus)"
+    },
+    {
+      "type":      "textarea",
+      "id":        "custom_ordered_categories",
+      "label":     "Group order",
+      "info":      "Define a custom order for groups, like “Color, Brand, Size”. Other groups will appear at the bottom."
+    },
+    {
+      "type":      "textarea",
+      "id":        "custom_ordered_tags",
+      "label":     "Tag order",
+      "info":      "Define a custom order for tags, like “Size_S, Size_M, Size_L”. Items must exactly match tag name, including group prefix. Other tags will appear at the bottom."
+    },
+    {
+      "type": "range",
+      "id": "menu_depth_range",
+      "label": "Menu depth visibility",
+      "info": "[Learn more](https://help.shopify.com/manual/sell-online/online-store/menus-and-links#create-a-drop-down-menu)",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "id": "menu",
+          "type": "link_list",
+          "label": "Menu",
+          "info": "This menu will show as many drop-down items as specified above under \"Menu depth visibility.\""
+        }
+      ],
+      "limit": 10
+    }
+  ]
+}
+
+{% endschema %}

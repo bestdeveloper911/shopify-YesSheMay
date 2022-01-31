@@ -1,0 +1,95 @@
+{% comment %}
+  This is the theme's default implementation of the Liquid API hooks.
+
+  This file should not be modified.
+{% endcomment %}
+
+{% comment %}
+  Output content at the bottom of the page's <head>.
+
+  @assign {String} head
+    Content to output. Integrations should use the `append` filter to
+    allow multiple integrations to use this hook.
+
+    Must use the `append` filter.
+{% endcomment %}
+{% if api == 'page:head' %}
+  {% assign page_head = '' %}
+{% endif %}
+
+{% comment %}
+  Output content at the bottom of the page's <body>.
+
+  @assign {String} head
+    Content to output. Integrations should use the `append` filter to
+    allow multiple integrations to use this hook.
+
+    Must use the `append` filter.
+{% endcomment %}
+{% if api == 'page:body' %}
+  {% assign page_body = '' %}
+{% endif %}
+
+{% comment %}
+  Get the JSON representing a product
+
+  @param {ProductDrop} product
+    A product
+
+  @assign {String} json
+    The product JSON
+{% endcomment %}
+{% if api == 'product:json' %}
+  {% assign json = product | json %}
+{% endif %}
+
+{% comment %}
+  Get the price min, price, price max,
+  compare at price min, compare at price, and compare at price max
+  of a variant
+
+  @param {ProductDrop} product
+    A product
+
+  @assign {Number} price_min
+    The product minimum price
+  @assign {Number} price
+    The product price
+  @assign {Number} price_max
+    The product maximum price
+  @assign {Number} compare_at_price_min
+    The product minimum compare at price
+  @assign {Number} compare_at_price
+    The product compare at price
+  @assign {Number} compare_at_price_max
+    The product maximum compare at price
+{% endcomment %}
+{% if api == 'product:price' %}
+  {% assign price_min = product.price_min %}
+  {% assign price = product.price %}
+  {% assign price_max = product.price_max %}
+  {% assign price_varies = product.price_varies %}
+
+  {% assign compare_at_price_min = product.compare_at_price_min %}
+  {% assign compare_at_price = product.compare_at_price %}
+  {% assign compare_at_price_max = product.compare_at_price_max %}
+  {% assign compare_at_price_varies = product.compare_at_price_varies %}
+{% endif %}
+
+
+{% comment %}
+  Get the price, and compare at price of a variant
+
+  @param {VariantDrop} variant
+    A product variant
+
+  @assign {Number} price
+    The variant price
+  @assign {Number} compare_at_price
+    The variant compare at price
+{% endcomment %}
+{% if api == 'variant:price' %}
+  {% assign price = variant.price %}
+
+  {% assign compare_at_price = variant.compare_at_price %}
+{% endif %}

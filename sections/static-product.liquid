@@ -1,0 +1,251 @@
+{%
+  include 'api' with 'product:json',
+  product: product
+%}
+
+{% assign show_stock_level = true %}
+
+{% if settings.product_show_stock_level == 'hidden' %}
+  {% assign show_stock_level = false %}
+{% endif %}
+
+
+<script
+  type="application/json"
+  data-section-type="static-product"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "settings": {
+      "cart_redirection": {{ section.settings.product_cart_redirect | json }},
+      "layout": {{ section.settings.layout | json }},
+      "money_format": {{ shop.money_format | strip_html | json }},
+      "thumbnail_position": {{ section.settings.gallery_thumbnail_position | json }},
+      "gallery_video_autoplay": {{ section.settings.gallery_video_autoplay | json }},
+      "gallery_video_looping": {{ section.settings.gallery_video_looping | json }},
+      "hover_zoom": {{ section.settings.gallery_hover_zoom | json }},
+      "click_to_zoom": {{ section.settings.gallery_click_to_zoom | json }},
+      "lazy_load": {{ settings.lazy_load | json }},
+      "enableHistory": true,
+      "enableSwatches": {{ settings.swatches_enable | json }},
+      "enableStockBadge": {{ show_stock_level | json }}
+    },
+    "context": {
+      "product_available": {{ 'product.buttons.add_to_cart' | t | json }},
+      "product_unavailable": {{ 'product.buttons.sold_out' | t | json }}
+    },
+    "product": {{ json }},
+    "models": {{ product.media | where: 'media_type', 'model' | json }}
+  }
+</script>
+
+{%- if section.settings.show_breadcrumbs -%}
+  {% include 'breadcrumbs' %}
+{%- endif -%}
+
+<section
+  class="
+    product--container
+    {{ section.settings.layout }}
+    {% unless section.settings.show_breadcrumbs %}no-breadcrumbs{% endunless %}
+    custom-product--{{ product.handle }}
+    {% for c in product.collections %}custom-collection--{{ c.handle }} {% endfor %}
+  "
+  data-product-wrapper
+>
+  {%
+    include 'product',
+    layout: section.settings.layout,
+    is_product_modal: false,
+    gallery_aspect_ratio: section.settings.gallery_aspect_ratio,
+    gallery_thumbnail_position: section.settings.gallery_thumbnail_position,
+    gallery_image_crop: section.settings.gallery_image_crop,
+    gallery_click_to_zoom: section.settings.gallery_click_to_zoom,
+    gallery_hover_zoom: section.settings.gallery_hover_zoom,
+  %}
+</section>
+
+{% if product.metafields.shop_the_look.variant %}
+  {% comment %}{% render 'product-shop-the-look', _v: product.metafields.shop_the_look.variant %}{% endcomment %}
+{% endif %}
+
+{% if section.settings.enable_related_products %}
+  {% assign related_collection = collection %}
+  {% if collection == null or collection.handle == 'frontpage' or collection.handle == 'all' %}
+    {% assign collection_found = false %}
+    {% for c in product.collections %}
+      {% if collection_found == false and c.handle != 'frontpage' and c.handle != 'all' %}
+        {% assign collection_found = true %}
+        {% assign related_collection = c %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if related_collection.products.size > 0 %}
+    {%
+      include 'related-products',
+      current_product: product.id
+    %}
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Product pages",
+  "class": "product--section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumb navigation",
+      "default": true
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "layout--two-col",
+          "label": "2 columns (small image)"
+        },
+        {
+          "value": "layout--two-col-medium",
+          "label": "2 columns (medium image)"
+        },
+        {
+          "value": "layout--two-col-large",
+          "label": "2 columns (large image)"
+        },
+        {
+          "value": "layout--three-col",
+          "label": "3 columns"
+        }
+      ],
+      "default": "layout--three-col"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dcb",
+      "label": "Show dynamic checkout button",
+      "info": "Customers will be shown their preferred payment method, based on their device, shopping history and the options you've enabled. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "product_cart_redirect",
+      "label": "Enable cart redirection",
+      "info": "Automatically sends users to the Cart page after adding a product.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "paragraph",
+      "content": "Learn more about [media types](https://help.shopify.com/en/manual/products/product-media/product-media-types)"
+    },
+    {
+      "type": "select",
+      "id": "gallery_aspect_ratio",
+      "label": "Aspect ratio",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "short", "label": "Short (4:3)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "tall", "label": "Tall (2:3)" }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_image_crop",
+      "label": "Enable image crop",
+      "info": "If disabled, white space will be applied around the image. Has no effect when media aspect ratio is set to natural.",
+      "default": false
+    },
+    {
+      "id": "gallery_thumbnail_position",
+      "type": "select",
+      "label": "Thumbnails position",
+      "options": [
+        {
+          "value": "below",
+          "label": "Below main image"
+        },
+        {
+          "value": "left",
+          "label": "Left of main image"
+        }
+      ],
+      "default": "below"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_video_autoplay",
+      "label": "Enable video autoplay",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_video_looping",
+      "label": "Enable video looping",
+      "default": true
+    },
+    {
+      "id": "gallery_hover_zoom",
+      "type": "select",
+      "label": "Roll-over image zoom",
+      "options": [
+        {
+          "value": "disabled",
+          "label": "Disabled"
+        },
+        {
+          "value": "separate",
+          "label": "Enabled (separate box)"
+        },
+        {
+          "value": "replace",
+          "label": "Enabled (replace main image)"
+        }
+      ],
+      "info": "Only applies to desktop screen sizes.",
+      "default": "disabled"
+    },
+    {
+      "id": "gallery_click_to_zoom",
+      "type": "select",
+      "label": "Click to zoom image",
+      "options": [
+        {
+          "value": "disabled",
+          "label": "Disabled"
+        },
+        {
+          "value": "always",
+          "label": "Enabled"
+        },
+        {
+          "value": "desktop",
+          "label": "Enabled on desktop only"
+        },
+        {
+          "value": "mobile",
+          "label": "Enabled on mobile only"
+        }
+      ],
+      "default": "always",
+      "info": "Changes to \"Tap to zoom\" on mobile."
+    },
+    {
+      "type": "paragraph",
+      "content": "For the best zoom results, make sure your images are larger than 1600px."
+    }
+  ]
+}
+
+{% endschema %}

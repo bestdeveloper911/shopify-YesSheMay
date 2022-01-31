@@ -1,0 +1,33 @@
+{% comment %}
+  @param product {ProductDrop}
+    Product to evaluate consistent savings
+{% endcomment %}
+
+{%- assign consistent_saved = false -%}
+{%- assign saved = false -%}
+{%- assign saved_differs = false -%}
+
+{%- for variant in product.variants -%}
+  {%-
+    include 'api' with 'variant:price',
+    product: product,
+    variant: variant,
+  -%}
+
+  {%- if settings.product_sales_badge_style == 'percentile' -%}
+    {%- assign tmp_saved = compare_at_price | divided_by: price -%}
+  {%- elsif settings.product_sales_badge_style == 'money' -%}
+    {%- assign tmp_saved = compare_at_price | minus: price -%}
+  {%- endif -%}
+
+  {%- if saved == false -%}
+    {%- assign saved = tmp_saved -%}
+  {%- elsif tmp_saved != saved -%}
+    {%- assign saved_differs = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if saved_differs == false -%}
+  {%- assign consistent_saved = true -%}
+{%- endif -%}

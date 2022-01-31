@@ -1,0 +1,13 @@
+<script defer>
+  function swymCallbackFn(swat){
+    // your API calls go here
+    document.addEventListener("swym:collections-loaded", function(){
+      swat.initializeActionButtons("<<Collections Grid PARENT Selector >>");
+    })
+  }
+  if(!window.SwymCallbacks){
+    window.SwymCallbacks = [];
+  }
+  window.SwymCallbacks.push(swymCallbackFn);
+
+</script>

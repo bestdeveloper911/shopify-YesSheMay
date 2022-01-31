@@ -1,0 +1,421 @@
+{% comment %}
+  @param menu LinkList
+    List of menu items
+
+  @param meganav_block Block
+    The block with the meganav properties
+
+  @param max_depth Number
+    The maximum depth to traverse.
+
+  @param meganav_has_triggers Bool
+    Adds in triggers to open meganav items
+
+  @param is_mobile Bool
+    True if the menu is for mobile nav
+
+{% endcomment %}
+
+
+{%- capture meganav_classes -%}
+  navmenu-submenu
+  navmenu-meganav
+  {% unless is_mobile %}
+    navmenu-meganav--desktop
+  {% endunless %}
+{%- endcapture -%}
+
+{%- capture navmenu_classes -%}
+  navmenu
+  navmenu-depth-2
+  navmenu-meganav-items
+{%- endcapture -%}
+
+{% if block.type == 'meganav_images' %}
+
+  <div
+    class="{{ meganav_classes | strip_newlines }}"
+    data-navmenu-submenu
+    {% unless is_mobile %}
+      data-meganav-menu
+      data-meganav-id="{{ meganav_block.id }}"
+      data-meganav-id-{{ meganav_block.id }}
+    {% endunless %}
+  >
+  {% unless is_mobile %}
+  <div class="meganav-inner">
+    <div class="navmenu-meganav--scroller">
+  {% endunless %}
+      {% assign meganav_has_triggers = true %}
+      {% if is_site_nav %}
+        {% assign meganav_has_triggers = false %}
+      {% endif %}
+
+      <ul class="{{ navmenu_classes | strip_newlines }}">
+        {% unless is_mobile %}
+        {%
+          include 'meganav-promo',
+          meganav_block: meganav_block,
+          position: 'first'
+        %}
+        {% endunless %}
+        
+        {% assign meganav_has_new_arrivals = false %}
+
+        {% for menu_item in menu.links %}
+          {% assign nav_item_count = 'navmenu-item-count-' %}
+          {% if menu_item.links.size > 4 %}
+            {% assign nav_item_count = nav_item_count | append: '5-up' %}
+          {% else %}
+            {% assign nav_item_count = nav_item_count | append: menu_item.links.size %}
+          {% endif %}
+
+          {%- capture navmenu_item_classes -%}
+            navmenu-item
+            navmenu-item-parent
+            {{ nav_item_count }}
+            navmenu-id-{{ menu_item.title | handle }}
+            navmenu-meganav-item
+          {%- endcapture -%}
+        
+
+          {% if menu_item.title == 'Shop All' %}
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                {% if menu.title == 'Beauty & Wellness' %}
+                  <a href="/collections/beauty-wellness" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/beauty-new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% elsif menu.title == 'Clothing' %}
+                  <a href="/collections/fashion-shop-all" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/fashion-new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% elsif menu.title == 'Wellness' %}
+                  <a href="/collections/wellness-shop-all" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/wellness-new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% elsif menu.title == 'Home & Gifts' %}
+                  <a href="/collections/home-gifts-shop-all" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/products/rise-ai-giftcard" class="navmenu-item-text navmenu-link-parent">Gift Cards</a>
+                  <a href="/collections/home-gifts-new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% elsif menu.title == 'Accessories' %}
+                  <a href="/collections/accessories" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/new-arrivals-accessories" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% elsif menu.title == 'Shoes' %}
+                  <a href="/collections/shoes" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/shoes-new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% else %}
+                  <a href="/collections/shop-all" class="navmenu-item-text navmenu-link-parent">Shop All</a>
+                  <a href="/collections/new-arrivals" class="navmenu-item-text navmenu-link-parent">New Arrivals</a>
+                {% endif %}
+                {% comment %}
+                  <a href="/collections/sale" class="navmenu-item-text navmenu-link-parent" style="color: #F3027A">Sale</a>
+                {% endcomment %}
+            </li>
+          {% assign meganav_has_new_arrivals = true %}
+          {% elsif menu_item.title == 'New Arrivals' %}
+          {% unless meganav_has_new_arrivals %}
+          <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+              <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent test">
+                  {{ menu_item.title }}
+                </a>
+              </li>
+        
+          {% endunless %}
+          {% elsif menu_item.title == 'Shop by Brands' %}
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">{{ menu_item.title }}</a>
+
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+
+                {%
+                  include 'navlist',
+                  menu_list: linklists[menu_item.handle].links,
+                  depth: 3,
+                  max_depth: 3,
+                  is_submenu: true,
+                  has_triggers: true,
+                  submenu_arrows: true,
+                  aria_expanded: true,
+                  is_mobile: is_mobile
+                %}
+              </li>
+
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">&nbsp;</a>
+
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+
+                {%
+                  include 'navlist-for-brand',
+                  menu_list: linklists[menu_item.handle].links,
+                  depth: 3,
+                  max_depth: 3,
+                  is_submenu: true,
+                  has_triggers: true,
+                  submenu_arrows: true,
+                  aria_expanded: true,
+                  is_mobile: is_mobile,
+                  see_more: false,
+                  offset_num: 9
+                %}
+              </li>
+
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">&nbsp;</a>
+
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+
+                {%
+                  include 'navlist-for-brand',
+                  menu_list: linklists[menu_item.handle].links,
+                  depth: 3,
+                  max_depth: 3,
+                  is_submenu: true,
+                  has_triggers: true,
+                  submenu_arrows: true,
+                  aria_expanded: true,
+                  is_mobile: is_mobile,
+                  see_more: false,
+                  offset_num: 18,
+                  show_more: false
+                %}
+              </li>
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">&nbsp;</a>
+
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+
+                {%
+                  include 'navlist-for-brand',
+                  menu_list: linklists[menu_item.handle].links,
+                  depth: 3,
+                  max_depth: 3,
+                  is_submenu: true,
+                  has_triggers: true,
+                  submenu_arrows: true,
+                  aria_expanded: true,
+                  is_mobile: is_mobile,
+                  see_more: false,
+                  offset_num: 27,
+                  show_more: false
+                %}
+              </li>
+        <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}
+              >
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">&nbsp;</a>
+
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+
+                {%
+                  include 'navlist-for-brand',
+                  menu_list: linklists[menu_item.handle].links,
+                  depth: 3,
+                  max_depth: 3,
+                  is_submenu: true,
+                  has_triggers: true,
+                  submenu_arrows: true,
+                  aria_expanded: true,
+                  is_mobile: is_mobile,
+                  see_more: false,
+                  offset_num: 36,
+                  show_more: true
+                %}
+              </li>
+          {% else %}
+              <li
+                class="{{ navmenu_item_classes | strip_newlines }}"
+                {% if meganav_has_triggers and menu_item.links.size > 0 %}data-navmenu-trigger{% endif %}
+                {% if is_mobile and linklists[menu_item.handle] != blank %}data-navmenu-parent{% endif %}
+                {{ block.shopify_attributes }}>
+
+                <a href="{{ menu_item.url | downcase }}" class="navmenu-item-text navmenu-link-parent">
+                  {{ menu_item.title }}
+                </a>
+                {% comment %}
+                {% if is_mobile and menu_item.links.size > 0 %}
+                  {% include
+                    'mobile-navmenu-button',
+                    button_label: menu_item.title
+                  %}
+                {% endif %}
+                {% endcomment %}
+                {% if menu_item.title != 'Shop All' and menu_item.title != 'New Arrivals'%}
+                    {%
+                      include 'navlist',
+                      menu_list: linklists[menu_item.handle].links,
+                      depth: 3,
+                      max_depth: 3,
+                      is_submenu: true,
+                      has_triggers: true,
+                      submenu_arrows: true,
+                      aria_expanded: true,
+                      is_mobile: is_mobile
+                    %}
+                {% endif %}
+              </li>
+          {% endif %}
+
+        {% endfor %}
+
+        {%
+          include 'meganav-promo',
+          meganav_block: meganav_block,
+          position: 'last'
+        %}
+      </ul>
+  {% unless is_mobile %}
+    </div>
+  </div>
+  {% endunless %}
+  </div>
+
+{% else %}
+
+  <div
+  class="{{ meganav_classes | strip_newlines }} megamenu-item-{{ block.type }}"
+  data-navmenu-submenu
+  {% unless is_mobile %}
+    data-meganav-menu
+    data-meganav-id="{{ meganav_block.id }}"
+    data-meganav-id-{{ meganav_block.id }}
+  {% endunless %}
+  >
+    <div class="meganav-inner">
+      <div class="navmenu-meganav--scroller">
+        <div class="navmenu  navmenu-depth-2  navmenu-meganav-items">
+          <div class="mob-menu-back hide--desktop">
+            <svg class="icon-chevron-down-small " aria-hidden="true" focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg" width="8" height="6" viewBox="0 0 8 6" fill="none"><title>Chevron down icon</title><path class="icon-chevron-down-left" d="M4 4.5L7 1.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="square"></path><path class="icon-chevron-down-right" d="M4 4.5L1 1.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="square"></path></svg>
+            {{ block.settings.title }}
+          </div>
+          <div class="megamenu-wrapper">
+            <div class="main_title hide--mobile">{{ block.settings.main_menu_title | default: linklists[block.settings.main_menu].title }}</div>
+            <div class="menu_left">
+              <div class="menu-items-wrapper">
+
+                {% assign menu_len = linklists[block.settings.main_menu].links.size %}
+                {% assign menu_len = menu_len | divided_by: 2.0 | round %}
+
+                {% comment %}
+                {% if menu_len < 6 %}
+                  {% assign menu_len = 6 %}
+                {% endif %}
+                {% endcomment %}
+
+                {% for link in linklists[block.settings.main_menu].links %}
+                  {% assign idx = forloop.index0 | modulo: menu_len %}
+
+                  {% if idx == 0 or forloop.first %}
+                    {% unless forloop.first %}
+                      </span>
+                    {% endunless %}
+                    <span class="menu-group">
+                  {% endif %}
+
+                  <div class="menu-item-link">
+                    <a href="{{ link.url }}">{{ link.title }}</a>
+                  </div>
+                  
+                  {% if forloop.last and idx != 0 %}
+                    </span>
+                  {% endif %}
+
+                {% endfor %}
+              </div>
+            </div>
+            <div class="menu_right">
+              <div class="menu-items-wrapper">
+                <div class="menu-subtitle">
+                  {{ block.settings.submenu_title | default: linklists[block.settings.sub_menu].title }}
+                </div>
+                {% for link in linklists[block.settings.sub_menu].links %}
+                  <div class="menu-item-link">
+                    <a href="{{ link.url }}">{{ link.title }}</a>
+                  </div>
+                {% endfor %}
+              </div>
+              {% if block.settings.image != blank %}
+                <div class="menu-image-wrapper">
+
+                  {% if block.settings.link != blank %}
+                    <a href="{{ block.settings.link }}">
+                  {% endif %}
+
+                  {%
+                    include 'rimg',
+                    img: block.settings.image
+                  %}
+
+                  {% if block.settings.label != blank  %}
+                    <label>{{ block.settings.label }}</label>
+                  {% endif %}
+
+                  {% if block.settings.link != blank %}
+                    </a>
+                  {% endif %}
+
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}

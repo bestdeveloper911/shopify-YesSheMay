@@ -1,0 +1,32 @@
+{% comment %}
+  @param color {string}
+    CSS compatible color to use
+  @param opacity {float} [1]
+    Global opacity multiplier, should be between 0 and 1
+  @param text_position {string}
+    Must be one of 'top', 'bottom', 'left', 'center' or 'right' and will generate the
+    appropriate gradient for that text position. Invalid values will produce a solid color.
+
+  Outputs a string value to be used in a CSS `background` property
+{% endcomment %}
+
+{%- capture background_gradient -%}
+  {%- assign opacity = opacity | default: 1.0 -%}
+  {%- assign start_color = color | color_modify: 'alpha', 0 -%}
+  {%- assign end_color = color | color_modify: 'alpha', opacity -%}
+  {%- case text_position -%}
+    {%- when 'top' -%}
+      linear-gradient(0deg, {{ start_color }} 43.38%, {{ end_color}} 100%)
+    {%- when 'bottom' -%}
+      linear-gradient(180deg, {{ start_color }} 43.38%, {{ end_color}} 100%)
+    {%- when 'left' -%}
+      linear-gradient(270deg, {{ start_color }} 43.38%, {{ end_color}} 100%)
+    {%- when 'center' -%}
+      linear-gradient(270deg, {{ start_color }} 0%, {{ end_color}} 100%)
+    {%- when 'right' -%}
+      linear-gradient(90deg, {{ start_color }} 43.38%, {{ end_color}} 100%)
+    {%- else -%}
+      {{ end_color }}
+  {%- endcase -%}
+{%- endcapture -%}
+{{- background_gradient -}}

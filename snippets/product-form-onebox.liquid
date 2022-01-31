@@ -1,0 +1,167 @@
+{% comment %}
+  Product form
+
+  @param product
+
+  @param selected_variant
+{% endcomment %}
+
+{% if is_product_modal and settings.quickshop_show_dcb %}
+  {% assign quickshop_smart_buttons = true %}
+{% endif %}
+
+{% if is_product_modal == false and section.settings.show_dcb %}
+  {% assign product_smart_buttons = true %}
+{% endif %}
+
+{% if selected_variant.available == false %}
+  {% assign quickshop_smart_buttons = false %}
+  {% assign product_smart_buttons = false %}
+{% endif %}
+
+{% assign product_form_class = '' %}
+{% if product_smart_buttons or quickshop_smart_buttons %}
+  {% assign product_form_class = 'smart-payment-enabled' %}
+{% endif %}
+
+{% form 'product', product, class: product_form_class, data-product-form: '' %}
+  {% if product.has_only_default_variant %}
+    <input
+      name="id"
+      value="{{ product.variants[0].id }}"
+      type="hidden">
+  {% else %}
+    {% comment %}
+    <div data--hidden>
+      {%
+        include 'product-options',
+        product: product,
+        selected_variant: selected_variant,
+        style: settings.product_option_style
+      %}
+    </div>
+    {% endcomment %}
+  {% endif %}
+
+  <div class="product-swatches">
+    <div class="image_wrapper hide--mobile" data-swatch-image>
+      {% assign s_img = product.selected_or_first_available_variant.image | default: product.featured_image %}
+      {%
+        include 'rimg',
+        img: s_img,
+        class: 'productitem--image',
+        size: '400x400'
+      %}
+    </div>
+    <a href="javascript:;" data-popup-open="swatch-popup">
+      <span class="variant-name" data-variant-name>{{ product.selected_or_first_available_variant.title }} </span>
+      <span>
+        Options
+        <svg fill="none" height="7" viewBox="0 0 6 7" width="6" xmlns="http://www.w3.org/2000/svg"><path d="M6 3.5L0.75 6.53109L0.75 0.468911L6 3.5Z" fill="#1C1C1C"></path></svg>
+      </span>
+    </a>
+  </div>
+
+  {% if settings.product_show_stock_level != 'hidden'%}
+     {%
+        include 'product-stock-level',
+        container: 'product_page',
+        variant: selected_variant,
+        inventory_quantity: selected_variant.inventory_quantity
+      %}
+  {% endif %}
+
+  <div class="product-form--atc">
+    <div class="product-form--atc-qty form-fields--qty {% if product.title == 'Virtual Styling Appointment' %}NoShow-Virtual{% endif %}" data-quantity-wrapper>
+      <div class="form-field form-field--qty-select">
+        <div class="form-field-select-wrapper">
+          <select
+            id="product-quantity-select"
+            class="form-field-input form-field-select"
+            aria-label="{{ 'general.general.quantity' | t }}"
+            data-quantity-select
+          >
+            {% for i in (1..9) %}
+              <option {% if i == 1 %}selected {% endif %}value="{{ i }}">
+                {{ i }}
+              </option>
+            {% endfor %}
+            <option value="10+">
+              10+
+            </option>
+          </select>
+          <label
+            for="product-quantity-select"
+            class="form-field-title"
+          >
+            {{ 'general.general.quantity' | t }}
+          </label>
+          {% include 'icon-library', id: 'icon-chevron-down-small' %}
+        </div>
+      </div>
+      <div class="form-field form-field--qty-input hidden">
+        <input
+          id="product-quantity-input"
+          class="form-field-input form-field-number form-field-filled"
+          value="1"
+          name="quantity"
+          type="text"
+          pattern="\d*"
+          aria-label="{{ 'general.general.quantity' | t }}"
+          data-quantity-input
+        >
+        <label
+          for="product-quantity-input"
+          class="form-field-title"
+        >
+          {{ 'general.general.quantity' | t }}
+        </label>
+      </div>
+    </div>
+    
+
+    <button
+      class="product-form--atc-button {% unless selected_variant.available %}disabled{% endunless %}"
+      type="submit"
+      {% unless selected_variant.available %}disabled{% endunless %}
+      data-product-atc>
+      <span class="atc-button--text">
+        {% if selected_variant.available %}
+          {{ 'product.buttons.add_to_cart' | t }}
+        {% else %}
+          {{ 'product.buttons.sold_out' | t }}
+        {% endif %}
+      </span>
+      <span class="atc-button--icon">
+        {% include 'icon-library', id: 'icon-spinner' %}
+      </span>
+    </button>
+  </div>
+
+  {% assign p_tag = product.tags %}
+  {% if p_tag contains 'Ship1W' or p_tag contains 'Ship2W' or p_tag contains 'Ship3W' %}
+    <div class="delivery-info">
+      <span class="info-name">Estimated delivery: </span>
+      {% if p_tag contains 'Ship1W' %}
+        3-7 days
+      {% elsif p_tag contains 'Ship2W' %}
+        2-3 weeks
+      {% elsif p_tag contains 'Ship3W' %}
+        3 weeks
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% comment %}
+  {% if product_smart_buttons or quickshop_smart_buttons %}
+    {{ form | payment_button }}
+  {% endif %}
+  {% endcomment %}
+
+
+  
+  {% if template.name == 'product' and template.suffix == 'onebox' %}
+    {% render 'variants-popup' %}
+  {% endif %}
+
+{% endform %}

@@ -1,0 +1,302 @@
+{%- include 'video-with-text' -%}
+{% schema %}
+{
+  "name": "Video with text",
+  "class": "section-video",
+  "settings": [
+    {
+      "id": "preheading",
+      "type": "text",
+      "label": "Preheading",
+      "default": "Preheading"
+    },
+    {
+      "id": "preheading_color",
+      "type": "color",
+      "label": "Preheading color",
+      "default": "#4d4d4d"
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "label": "Heading",
+      "default": "Video with text"
+    },
+    {
+      "id": "heading_color",
+      "type": "color",
+      "label": "Heading color",
+      "default": "#4d4d4d"
+    },
+    {
+      "id": "heading_size",
+      "type": "select",
+      "label": "Heading size",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "xlarge",
+          "label": "Extra Large"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "id": "text_content",
+      "type": "textarea",
+      "label": "Text",
+      "default": "Video with text"
+    },
+    {
+      "id": "text_content_color",
+      "type": "color",
+      "label": "Text color",
+      "default": "#4d4d4d"
+    },
+    {
+      "id": "button_link",
+      "type": "url",
+      "label": "Button link"
+    },
+    {
+      "id": "button_text",
+      "type": "text",
+      "label": "Button text"
+    },
+    {
+      "id": "button_style",
+      "type": "select",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "primary_with_icon",
+          "label": "Primary with icon"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        },
+        {
+          "value": "secondary_with_icon",
+          "label": "Secondary with icon"
+        },
+        {
+          "value": "signpost",
+          "label": "Signpost link"
+        }
+      ]
+    },
+    {
+      "id": "signpost_color",
+      "type": "color",
+      "label": "Signpost color",
+      "default": "#111"
+    },
+    {
+      "id": "block_link",
+      "type": "checkbox",
+      "label": "Apply link to the whole block",
+      "default": false
+    },
+    {
+      "id": "text_vertical_position",
+      "type": "select",
+      "label": "Vertical position",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "middle",
+          "label": "Middle"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "middle"
+    },
+    {
+      "id": "text_alignment",
+      "type": "select",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video_url",
+      "id": "url",
+      "label": "Link",
+      "accept": ["youtube", "vimeo"],
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_caption",
+      "label": "Show Caption"
+    },
+    {
+      "type": "richtext",
+      "id": "caption",
+      "label": "Caption",
+      "default": "<p>A short description of the video.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay video"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Aspect ratio",
+      "options": [
+        {
+          "label": "16:9",
+          "value": "16-9"
+        },
+        {
+          "label": "21:9",
+          "value": "21-9"
+        }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "id": "cover",
+      "label": "Cover image"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Cover image position",
+      "info": "Adjusts the focal point of the image. This setting will not have a noticeable impact if the dimensions of your image match the dimensions of the section.",
+      "options": [
+        {
+          "label": "Top left",
+          "value": "top-left"
+        },
+        {
+          "label": "Top center",
+          "value": "top-center"
+        },
+        {
+          "label": "Top right",
+          "value": "top-right"
+        },
+        {
+          "label": "Center left",
+          "value": "center-left"
+        },
+        {
+          "label": "Center",
+          "value": "center-center"
+        },
+        {
+          "label": "Center right",
+          "value": "center-right"
+        },
+        {
+          "label": "Bottom left",
+          "value": "bottom-left"
+        },
+        {
+          "label": "Bottom center",
+          "value": "bottom-center"
+        },
+        {
+          "label": "Bottom right",
+          "value": "bottom-right"
+        }
+      ],
+      "default": "center-center"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Show overlay"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "opacity",
+      "label": "Opacity",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 50
+    }
+  ],
+  "presets": [
+    {
+      "category": "Video",
+      "name": "Video with text"
+    }
+  ]
+}
+
+{% endschema %}

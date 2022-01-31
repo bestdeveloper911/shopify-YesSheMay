@@ -1,0 +1,37 @@
+{% style %}
+#shopify-section-{{section.id}} {
+  margin-bottom: 12px;
+}
+#shopify-section-{{section.id}} .container {
+    text-align: center;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+}
+@media screen and (max-width: 768px) {
+    #shopify-section-{{section.id}} .container {
+      flex-wrap: wrap;
+    }
+}
+{% endstyle %}
+
+<section class="container">
+{{section.settings.content}}
+</section>
+
+{% schema %}
+  {
+    "name": "Custom HTML",
+    "settings": [
+        {
+          "type": "textarea",
+          "id": "content",
+          "label": "HTML content"
+        }
+    ],
+	  "presets": [{
+    	"name": "Custom HTML",
+    	"category": "Collection"
+  	}]
+  }
+{% endschema %}

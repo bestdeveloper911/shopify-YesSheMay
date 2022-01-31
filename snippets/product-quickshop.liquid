@@ -1,0 +1,167 @@
+{% assign enable_social_sharing = settings.product_social_sharing %}
+{% assign selected_variant = product.selected_or_first_available_variant %}
+{% assign compare_at_price = selected_variant.compare_at_price %}
+{% assign price = selected_variant.price %}
+{% assign sku = selected_variant.sku %}
+{% assign product_available = product.available %}
+
+{% assign hover_zoom = settings.quickshop_gallery_hover_zoom %}
+
+{%
+  include 'api' with 'variant:price',
+  product: product,
+  variant: selected_variant,
+%}
+
+{% assign on_sale = false %}
+{% if compare_at_price > price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{%- capture share_buttons -%}
+  {% assign social_image = false %}
+  {% if product.featured_image %}
+    {% assign social_image = product.featured_image | img_url: '1024x' %}
+  {% endif %}
+  {% assign social_url = shop.url | append: product.url %}
+  {%-
+    include 'share-buttons',
+    snippet_title: 'general.share_buttons.title',
+    social_image: social_image,
+    social_title: product.title,
+    social_url: social_url
+  -%}
+{%- endcapture  -%}
+
+<article class="
+  product--outer
+  custom-product--{{ product.handle }}
+  {% for c in product.collections %}custom-collection--{{ c.handle }} {% endfor %}
+">
+  {% comment %}
+    Product slideshow, never moves
+  {% endcomment %}
+  {%
+    include 'product-gallery',
+    is_product_modal: true,
+    selected_variant: selected_variant,
+    onboarding: false,
+    aspect_ratio: settings.quickshop_gallery_aspect_ratio,
+    thumbnail_position: settings.quickshop_gallery_thumbnail_position,
+    image_crop: settings.quickshop_gallery_image_crop,
+    click_to_zoom: 'disabled',
+    hover_zoom: hover_zoom,
+  %}
+  <div class="product-main">
+    <div class="product-details" data-product-details>
+      <h2 class="product-title">
+        <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+      </h2>
+
+      {% if settings.product_show_vendor and product.vendor != blank %}
+        <div class="product-vendor">
+          {%- capture vendor_link -%}
+            {{ product.vendor | link_to_vendor }}
+          {%- endcapture -%}
+          {{ 'product.general.by_vendor_html' | t: vendor_link: vendor_link }}
+        </div>
+      {% endif %}
+
+      {% if settings.product_ratings_reviews %}
+        <div class="product-ratings">
+          <span class="shopify-product-reviews-badge" data-id="{{ product.id }}">
+            <span class="spr-badge">
+              <span class="spr-starrating spr-badge-starrating">
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+                <i class="spr-icon spr-icon-star-empty"></i>
+              </span>
+            </span>
+          </span>
+        </div>
+      {% endif %}
+
+      <div class="product-pricing" aria-live="polite">
+        {%
+          include 'product-badge',
+          class_root: 'product',
+          product_available: product_available,
+          on_sale: on_sale,
+          price: price,
+          compare_at_price: compare_at_price,
+          show_saved: true
+        %}
+
+        {%
+          include 'product-price',
+          class_root: 'product',
+          price: price,
+          price_varies: false,
+          compare_at_price: compare_at_price,
+          compare_at_price_varies: false,
+          on_sale: on_sale,
+          emphasize_price: false,
+          show_original: true
+        %}
+      </div>
+
+      {% if settings.product_show_sku == true %}
+        <div
+          class="
+            product-sku
+            {% if sku == empty %}product-sku--empty{% endif %}
+          "
+        >
+          {{ 'product.general.sku_html' | t: sku: sku | strip_newlines }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% comment %}
+      Product form original location, will remain unless is 3 column layout
+    {% endcomment %}
+    {%- assign product_sold_out = false -%}
+    {%- if settings.in_stock_notification_form != 'disabled' and product.available == false -%}
+      {%- assign product_sold_out = true -%}
+    {%- endif -%}
+    <div class="product-form--regular" data-product-form-regular>
+      <div {% if product_sold_out %}class="product-sold-out"{% endif %} data-product-form-area>
+        <div data-product-quickshop-message class="product-message--container"></div>
+
+        {%
+          include 'product-form',
+          product: product,
+          selected_variant: selected_variant,
+          is_product_modal: true,
+        %}
+        {%- if settings.in_stock_notification_form != 'disabled' -%}
+          {%
+            include 'product-in-stock-notification-form',
+            product: product,
+          %}
+        {%- endif -%}
+        <a
+          href="{{ product.url | within: collection }}"
+          class="product-link"
+          data-product-details-link
+        >
+          {{ 'product.buttons.view_details' | t }}
+        </a>
+      </div>
+    </div>
+
+    {% comment %}
+      Product description field, never moves
+    {% endcomment %}
+    {% capture product_description %}{%- include 'shortcode-readmore', text: product.description, before_readmore: true -%}{% endcapture %}
+    {% if product_description != blank %}
+      <div class="product-description rte" data-product-description>{{ product_description }}</div>
+    {% endif %}
+
+    {% if enable_social_sharing %}
+      {{ share_buttons | strip_newlines }}
+    {% endif %}
+  </div>
+</article>

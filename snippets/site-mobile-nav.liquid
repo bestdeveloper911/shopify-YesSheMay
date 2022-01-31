@@ -1,0 +1,63 @@
+<div class="site-mobile-nav" id="site-mobile-nav" data-mobile-nav tabindex="0">
+  <div class="mobile-nav-panel" data-mobile-nav-panel>
+    <div class="header-actions-wrapper">
+      {% comment %}{% include 'site-header-actions', mobile: true %}{% endcomment %}
+      <button class="site-header-button site-header-search-button" data-search-toggle>
+        <div class="site-header-icon site-header-search-icon" tabindex="-1">
+          <span class="search-icon">
+            {% include 'icon-library', id: 'icon-search' %}
+            <span class="visually-hidden">{{ 'general.accessibility.search' | t }}</span>
+          </span>
+        </div>
+      </button>
+      <a
+        class="mobile-nav-close"
+        href="#site-header-nav"
+        data-mobile-nav-close
+      >
+        {% include 'icon-library', id: 'icon-burger-close' %}
+        <span class="visually-hidden">{{ 'general.accessibility.close' | t }}</span>
+      </a>
+    </div>
+
+    <div class="mob-menu-logo">
+      {%
+        include 'rimg',
+        img: section.settings.desktop_logo,
+        class: 'mobile-logo-image',
+        size: '52x',
+        alt: logo_alt,
+      %}
+      <em>Shop Women-Owened</em>
+    </div>
+
+    <div class="mob-account-menu">
+      <a href="account/login">Sign In</a>
+      <a href="account/register">
+        Sign Up
+        <svg class="icon-account " aria-hidden="true" focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><title>Account icon</title><path d="M20.5 19.5V21.525C20.5 21.5802 20.4552 21.625 20.4 21.625H3.6C3.54477 21.625 3.5 21.5802 3.5 21.525V19.5C3.5 18.3728 3.94777 17.2918 4.7448 16.4948C5.54183 15.6978 6.62283 15.25 7.75 15.25H16.25C17.3772 15.25 18.4582 15.6978 19.2552 16.4948C20.0522 17.2918 20.5 18.3728 20.5 19.5Z" stroke="currentColor" stroke-width="1.5"></path><path d="M12 11C14.3472 11 16.25 9.09721 16.25 6.75C16.25 4.40279 14.3472 2.5 12 2.5C9.65279 2.5 7.75 4.40279 7.75 6.75C7.75 9.09721 9.65279 11 12 11Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+      </a>
+    </div>
+
+    <div class="mobile-nav-content" data-mobile-nav-content>
+      {%
+        include 'navmenu',
+        menu: section.settings.menu,
+        blocks: blocks,
+        depth: 1,
+        max_depth: 3,
+        is_mobile: true
+        highlight_item: settings.header_navigation_sale_link_label,
+        section: section
+      %}
+    </div>
+
+    <div class="mob-social-icons">
+      <label>Follow us</label>
+      {% include 'social-list' %}
+    </div>
+
+  </div>
+
+  <div class="mobile-nav-overlay" data-mobile-nav-overlay></div>
+</div>

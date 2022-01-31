@@ -1,0 +1,258 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .rich-text-heading {
+    color: {{ section.settings.heading_color }};
+	  font-size: {{ section.settings.heading_font_size }}px;
+	  weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  #shopify-section-{{section.id}} .rich-text-content {
+	  font-size: {{ section.settings.text_font_size }}px;
+  }
+
+  #shopify-section-{{section.id}} .rich-text--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .rich-text--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-rich-text"
+></script>
+
+<section
+  class="
+    rich-text--container
+    rich-text-{{ section.settings.width }}
+  "
+>
+  {% for block in section.blocks %}
+    <div
+      class="
+        rich-text-block
+        {% if block.type == 'text' %}
+          rich-text-alignment-{{ block.settings.text_alignment }}
+        {% endif %}
+      "
+      {{ block.shopify_attributes }}
+    >
+      {% if block.type == 'text' %}
+        {% if block.settings.title != blank %}
+          <h2
+            class="
+              rich-text-heading
+              rich-text-heading-{{ block.settings.heading_size }}
+            "
+          >
+            {{ block.settings.title | escape }}
+          </h2>
+        {% endif %}
+
+        {% if block.settings.text != blank %}
+          <div class="rich-text-content rte" data-rte>
+            {{ block.settings.text }}
+          </div>
+        {% endif %}
+      {% elsif block.type == 'page' and block.settings.page %}
+        {% if block.settings.show_heading %}
+          <h2
+            class="
+              rich-text-heading
+            "
+          >
+            {{ pages[block.settings.page].title | escape }}
+          </h2>
+        {% endif %}
+
+        <div class="rich-text-content rte" data-rte>
+          {{ pages[block.settings.page].content }}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "Rich Text",
+  "class": "rich-text--section",
+  "max_blocks": 2,
+  "settings": [
+    {
+      "id": "width",
+      "type": "select",
+      "label": "Section width",
+      "options": [
+        {
+          "value": "regular",
+          "label": "Regular"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full-width",
+          "label": "Full width"
+        }
+      ],
+      "default": "regular"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading font size",
+      "min": 10,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "text_font_size",
+      "label": "Text font size",
+      "min": 10,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Rich text"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share news and seasonal promotions.</p>"
+        },
+        {
+          "id": "text_alignment",
+          "type": "select",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "Page",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_heading",
+          "label": "Show heading"
+        },
+        {
+          "id": "heading_size",
+          "type": "select",
+          "label": "Heading size",
+          "options": [
+            {
+              "value": "small",
+              "label": "Small"
+            },
+            {
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rich text",
+      "category": "Text",
+      "blocks": [
+        {
+          "type": "text",
+          "settings": {
+            "title": "Rich text",
+            "text": "<p>Use this section to welcome customers to your store, say a bit about your brand, or share news and seasonal promotions.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

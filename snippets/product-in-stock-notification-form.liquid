@@ -1,0 +1,48 @@
+{% assign current_product = product %}
+{% capture classes %}
+  in-stock-notification-form
+  {% if current_product.has_only_default_variant %}
+    no-variants
+  {% endif %}
+{% endcapture %}
+{% capture form_id %}stock-notification-form-{{ section.id }}{% endcapture %}
+{% form 'contact', id: form_id, class: classes, data-in-stock-notification-form: "" %}
+  <h3 class="form-title">{{ 'product.in_stock_notification.form_title' | t }}</h3>
+  <div class="form-field">
+    <input
+      type="email"
+      required
+      id="{{ section.id }}-in-stock-notification-form-email"
+      class="
+        form-field-input
+        {% if customer %}form-field-filled{% endif %}
+      "
+      aria-label="{{ 'general.newsletter.placeholder' | t }}"
+      {% if customer %}value="{{ customer.email }}"{% endif %}
+      name="contact[email]"
+    >
+    <label
+      for="{{ section.id }}-in-stock-notification-form-email"
+      class="form-field-title"
+    >
+      {{ 'general.newsletter.placeholder' | t }}
+    </label>
+  </div>
+
+  <input
+    type="hidden"
+    name="contact[body]"
+    value="{{ 'product.in_stock_notification.message' | t: product: current_product.title, url: canonical_url }}"
+  >
+  <button class="button-secondary" type="submit">{{ 'product.in_stock_notification.submit' | t }}</button>
+  {% if form.posted_successfully? %}
+    <p class="success-message">
+      {% include 'icon-library', id: 'icon-checkmark' %}
+      {{ 'product.in_stock_notification.success' | t }}
+    </p>
+  {% elsif form.errors %}
+    <p class="error-message">
+      {{ 'product.in_stock_notification.error' | t }}
+    </p>
+  {% endif %}
+{% endform %}

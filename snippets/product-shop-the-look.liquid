@@ -1,0 +1,370 @@
+{% assign f_product = null %}
+{% assign f_variant = null %}
+
+
+<div class="stl__embeded stl__inpage_r stl__section stl__section-center">
+  <div class="stl__section-heading stl__flex-row">
+    <div class="stl__flex-col">
+      <h2 class="stl__heading-1 stl__font-smooth">
+        Shop The Look
+      </h2>
+    </div>
+  </div>
+  <div class="stl__flex-row">
+    <div class="stl__flex-col stl__col-xs-order-1 stl__products_container">
+      <div>
+        {% for v_handle in _v %}
+
+          {% assign handle = v_handle | split: '?variant=' %}
+
+          {% assign p_handle = handle[0] %}
+          {% assign v_id = handle[1] | plus: 0 %}
+          
+          {% assign _product = all_products[p_handle] %}
+          {% assign _variant = _product.selected_or_first_available_variant %}
+
+          {% if forloop.first %}
+            {% assign f_product = _product %}
+            {% assign f_variant = _variant %}
+          {% endif %}
+          
+          {% for v in _product.variants %}
+            {% if v.id == v_id %}
+              {% assign _variant = v %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+
+          <article class="stl__product-list-item stl__products_element" data-product-id="6602808787023">
+            <div class="stl__product-component">
+              <a href="{{ _product.url }}" class="stl__product-img-link" title="Lucille Mini Ostrich Bag - Mod Blue">
+                <div class="stl__product-list-item-mg-wrapper">
+                  <div class="stl__product-list-item-img">
+                    <img class="stl__maxwidth-full" src="{{ _product.featured_image | img_url: '480x' }}" alt="={{ _product.featured_image.alt }}">
+                  </div>
+                </div>
+              </a>
+              <div class="stl__product-info js-stl__product__add-to-cart">
+                <a href="{{ _product.url }}">
+                  <div class="stl__product-price stl__gap-top-8">
+                    <span class="stl__clr-primary stl__gap-right-8 stl__font-bold">{{ _variant.price | money }}</span>
+                  </div>
+                  <div class="stl__product-title">
+                    <span class="stl__clr-secondary">{{ _product.title }}{% comment %}{% unless _variant.title == 'Default Title' %} - {{ _variant.title }}{% endunless %}{% endcomment %}</span>
+                  </div>
+                </a>
+                <div class="selectize-control select-size stl__hide">
+                  <select class="shopthelook_variants shopthelook_variants_single" data-product-id="{{ _product.id }}" data-product-index="0" name="product_collection_form[products][0][variants]">
+                    {% for _v in _product.variants %}
+                      <option value="{{ _v.id }}" data-price="{{ _v.price }}" data-formatted-price="{{ _v.price | money }}">{{ _v.title }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="stl__product-actions-button">
+                  <input type="hidden" name="productCodePost" class="pdp-size-value" value="{{ _variant.id }}">
+                  <input type="hidden" name="product_collection_form[products][0][quantity]" size="{{ _variant.inventory_quantity }}" class="shopthelook_quantity" maxlength="3" data-product-id="{{ _product.id }}" value="1">
+                  <a href="{{ _product.url }}" class="btn btn--primary stl__btn-primary stl__align-right js-action" data-add-to-cart-text="Add to cart" data-sold-out-text="Sold out" data-product-id="{{ _product.id }}">
+                    View Product
+                  </a>
+                  {% comment %}
+                  <button class="btn btn--primary stl__btn-primary stl__align-right js-action shopthelook_add-to-cart btn--add-to-basket add_to_cart" data-add-to-cart-text="Add to cart" data-sold-out-text="Sold out" data-product-id="{{ _product.id }}">
+                    Add to cart
+                  </button>
+                  {% endcomment %}
+                </div>
+                <div>
+                  <span class="js-message stl__btn-add-to-basket-message stl__added-to-basket" style="display:none;" data-product-id="6602808787023">Item added to cart successfully!</span>
+                  <span class="js-message stl__btn-add-to-basket-message stl__failed-adding-to-basket" style="display:none;" data-product-id="6602808787023">Failed to add item to cart!</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="stl__flex-col stl__col-xs-5 stl__col-xs-offset-1 stl__col-xs-order-0">
+      <a href="#" class="stl__product-img-link">
+        <div>
+          <div>
+            {% assign img = f_variant.image | default: f_product.featured_image %}
+            <img class="stl__maxwidth-full" src="{{ img | img_url: '800x' }}">
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+
+.stl__section {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.stl__section-center {
+  max-width: 992px;
+  margin: 0 auto;
+}
+@media only screen and (min-width: 768px) {
+  .stl__section-heading {
+    margin-bottom: 40px;
+  }
+}
+.stl__flex-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+@media only screen and (min-width: 768px) {
+  .stl__flex-col {
+    max-width: 50%;
+    flex-basis: 50%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+.stl__flex-col {
+  max-width: 100%;
+  flex-basis: 100%;
+  box-sizing: border-box;
+}
+
+.stl__heading-1 {
+  margin-bottom: 0;
+  margin-top: 0;
+  line-height: 1.125;
+  letter-spacing: -.8px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #767676;
+}
+
+@media only screen and (min-width: 768px) {
+  .stl__flex-col {
+    max-width: 50%;
+    flex-basis: 50%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .stl__product-list-item:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .stl__product-list-item:not(:last-child) {
+    margin-bottom: 40px;
+  }
+}
+
+.stl__product-list-item:last-child {
+  margin-bottom: 40px;
+}
+
+.stl__product-list-item {
+  margin-top: 0;
+}
+.stl__product-component {
+  display: flex;
+}
+.stl__product-img-link {
+  width: 150px;
+  position: relative;
+  background-color: #fff;
+  flex: 0 0 auto;
+}
+.stl__maxwidth-full {
+  max-width: 100%;
+} 
+.stl__product-info {
+  display: flex;
+  flex-direction: column;
+  width: 0;
+  padding-right: 16px;
+  padding-left: 16px;
+  flex: 1 1 auto;
+  color: #767676;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.stl__product-info a {
+  color: #767676;
+  text-decoration: none;
+}
+.stl__gap-top-8 {
+  padding-top: 8px;
+}
+.stl__font-bold {
+  font-weight: 700;
+}
+.stl__gap-right-8 {
+  padding-right: 8px;
+}
+.stl__clr-primary {
+  color: #000000;
+}
+.stl__hide {
+  display: none;
+}
+.shopthelook_variants {
+  list-style: none;
+  box-sizing: inherit;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: sans-serif;
+  text-transform: none;
+  display: block;
+  appearance: menulist;
+  background-image: none;
+  width: 100%;
+  max-width: 100%;
+  font-size: 1em;
+  font-weight: normal;
+  border: 1px solid rgb(255, 255, 255);
+  color: rgb(33, 33, 33);
+}
+.stl__product-actions-button {
+  padding: 8px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+input.shopthelook_quantity {
+  max-width: 100%;
+}
+.stl__embeded button.shopthelook_add-to-cart {
+  background: #fff!important;
+  border: 1px solid #000!important;
+  border-radius: 0!important;
+  color: #000!important;
+  font-weight: 400;
+  transition: all .2s;
+}
+.shopthelook_add-to-cart {
+  color: white;
+  padding: 10px 80px;
+  font-family: sans-serif;
+  font-size: 100%;
+}
+.shopthelook_add-to-cart {
+  background-color: #A8A8A8 !important;
+  border: none !important;
+}
+.stl__btn-primary {
+  border-color: #ff4e00;
+  background-color: #ff4e00;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px;
+}
+.stl__align-right {
+  margin-left: auto;
+}
+.stl__added-to-basket {
+  color: #346B36;
+}
+.stl__failed-adding-to-basket {
+  color: #B36462;
+}
+.stl__btn-add-to-basket-message {
+  display: block;
+  margin-top: 5px;
+}
+.stl__flex-col {
+  max-width: 100%;
+  flex-basis: 100%;
+  box-sizing: border-box;
+}
+
+.stl__col-xs-order-0 {
+  order: 0;
+}
+
+.stl__col-xs-order-1 {
+  order: 1;
+}
+
+@media only screen and (min-width: 768px) {
+  .stl__col-xs-order-0 {
+    order: 1;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .stl__flex-col {
+    max-width: 50%;
+    flex-basis: 50%;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .stl__col-xs-5 {
+    max-width: 41.66666667%;
+    flex-basis: 41.66666667%;
+  }
+}
+@media only screen and (min-width: 768px) {
+  .stl__col-xs-offset-1 {
+    margin-left: 8.33333333%;
+  }
+}
+.stl__product-img-link {
+  width: 150px;
+  position: relative;
+  background-color: #fff;
+  flex: 0 0 auto;
+}
+
+.shopthelook_add-to-cart {
+  color: white;
+  padding: 10px 80px;
+  font-family: sans-serif;
+  font-size: 100%;
+}
+
+@media (min-width: 320px) and (max-width: 480px) {
+  .stl__product-list-item {
+    margin-top: 40px;
+  }
+}
+
+.stl__product-actions-button a {
+  background: #fff!important;
+  border: 1px solid #000!important;
+  border-radius: 0!important;
+  color: #000!important;
+  font-weight: 400;
+  margin-top: 20px;
+  padding-left: 30px;
+  padding-right: 30px;
+  transition: all .2s;
+}
+
+.stl__product-actions-button a:hover {
+  background: #000 !important;
+  color: #FFF !important;
+}
+
+@media (min-width: 768px) {
+  .stl__product-actions-button a {
+    margin-left: 0px;
+  }
+  .stl__col-xs-5 {
+    min-width: 50% !important;
+    max-width: 50% !important;
+    margin-left: 0px !important;
+  }
+}
+
+</style>

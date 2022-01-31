@@ -1,0 +1,12 @@
+{% layout none  %}
+
+<template data-html="stockLevel">
+  {% if settings.product_show_stock_level != 'hidden' %}
+    {%
+     include 'product-stock-level',
+      container: 'product_page',
+      inventory_quantity: product.selected_or_first_available_variant.inventory_quantity,
+      variant: product.selected_or_first_available_variant
+    %}
+  {% endif %}
+</template>

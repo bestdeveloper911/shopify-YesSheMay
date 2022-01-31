@@ -1,0 +1,352 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .promo-mosaic--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .promo-mosaic--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}} .promo-mosaic--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .promo-mosaic--container .home-section--subheading,
+  #shopify-section-{{section.id}} .promo-mosaic--container .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-promo-mosaic"
+  data-section-data
+>
+  {
+    "compress_blocks": {{ section.settings.compress_blocks | json }},
+    "block_selector": "promo-block-mosaic",
+    "content_selector": "data-promo-block-mosaic-content"
+  }
+</script>
+
+<section class="promo-mosaic--container">
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="home-section--title-container" >
+    {% if section.settings.title != blank %}
+      <h2 class="home-section--title">
+        {{ section.settings.title | escape }}
+      </h2>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <div class="home-section--subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+    </div>
+  {% endif %}
+
+
+  <div class="home-section--content promo-mosaic--height-{{ section.settings.section_height }}">
+    {% if section.blocks.size > 0 %}
+      <div
+        class="
+          promo-mosaic--inner
+          promo-mosaic--layout-{{ section.blocks.size }}
+          {% if section.settings.compress_blocks %}promo-mosaic--compressed{% endif %}
+          {% if section.settings.maintain_aspect_ratio %}
+            promo-mosaic--maintain-aspect-ratio
+          {% endif %}
+        "
+      >
+        {% for block_item in section.blocks %}
+          {%
+            include 'promo-block-mosaic',
+            block: block_item,
+            text_alignment: section.settings.text_alignment,
+            compress_blocks: section.settings.compress_blocks,
+            maintain_aspect_ratio: section.settings.maintain_aspect_ratio
+          %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  {%
+    include 'promo-block-mosaic-background',
+    blocks: section.blocks
+  %}
+</section>
+
+{% schema %}
+{
+  "name": "Mosaic",
+  "class": "promo-mosaic--section",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Mosaic"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "id": "section_height",
+      "type": "select",
+      "label": "Section height",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        }
+      ],
+      "default": "small"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "id": "text_alignment",
+      "type": "select",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "center-left",
+          "label": "Center left"
+        },
+        {
+          "value": "center-center",
+          "label": "Center middle"
+        },
+        {
+          "value": "center-right",
+          "label": "Center right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        }
+      ],
+      "default": "top-left"
+    },
+    {
+      "id": "maintain_aspect_ratio",
+      "type": "checkbox",
+      "label": "Maintain aspect ratio",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "id": "compress_blocks",
+      "type": "checkbox",
+      "label": "Compress blocks",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "promotion",
+      "name": "Mosaic tile",
+      "settings": [
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Mosaic"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Use this section to welcome customers to your store, say a bit about your brand, or share news.",
+          "info": "120-character limit"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Text color",
+          "default": "#4d4d4d"
+        },
+        {
+          "type": "url",
+          "id": "block_link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text"
+        },
+        {
+          "id": "button_style",
+          "type": "select",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "primary_icon",
+              "label": "Primary with icon"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "secondary_icon",
+              "label": "Secondary with icon"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type":      "select",
+          "id":        "overlay_style",
+          "label":     "Overlay style",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "solid",
+              "label": "Solid"
+            },
+            {
+              "value": "gradient",
+              "label": "Gradient"
+            }
+          ],
+          "default":   "none"
+        },
+        {
+          "id": "background",
+          "type": "color",
+          "label": "Color"
+        },
+        {
+          "id": "opacity",
+          "type": "range",
+          "label": "Opacity",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mosaic",
+      "category": "Image",
+      "blocks": [
+        {
+          "type": "promotion"
+        },
+        {
+          "type": "promotion"
+        },
+        {
+          "type": "promotion"
+        }
+      ]
+    }
+  ]
+}
+
+{% endschema %}

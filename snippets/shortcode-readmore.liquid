@@ -1,0 +1,6 @@
+{%- comment -%}
+  @param before_readmore {Boolean}
+    Output the contents of the text before the readmore shortcode
+{%- endcomment -%}
+{%- assign readmore_split = text | split: '<!-- more -->' -%}
+{%- if before_readmore -%}{{- readmore_split[0] -}}{%- else -%}{{- readmore_split[1] -}}{%- endif -%}

@@ -1,0 +1,129 @@
+{% comment %}
+  @param product {Product}
+    The product object in question
+
+  @param selected_media {Media}
+    The current selected media in the gallery
+
+  @param aspect_ratio {string}
+    The aspect ratio setting, which is either 'short', 'tall', or 'square'
+
+  @param image_crop {boolean}
+    Defines if the image should be cropped or not
+
+  @param hover_zoom {String}
+    This is the hover zoom setting, which is either 'disabled', 'separate', or 'replace'
+{% endcomment %}
+
+{% if product.media.size > 0 %}
+  {% assign thumb_dimensions = 'x75' %}
+  {% if image_crop %}
+    {% case aspect_ratio %}
+    {% when 'short' %}
+      {% assign thumb_dimensions = '100x75' %}
+    {% when 'tall' %}
+      {% assign thumb_dimensions = '50x75' %}
+    {% when 'square' %}
+      {% assign thumb_dimensions = '75x75' %}
+    {% endcase %}
+  {% endif %}
+
+  <div
+    class="product-gallery--navigation loading"
+    data-gallery-navigation
+  >
+    <button
+      class="gallery-navigation--scroll-button scroll-left"
+      aria-label="Scroll thumbnails left"
+      data-gallery-scroll-button
+    >
+      {% include 'icon-library', id: 'icon-chevron-down' %}
+    </button>
+    <button
+      class="gallery-navigation--scroll-button scroll-right"
+      aria-label="Scroll thumbnails right"
+      data-gallery-scroll-button
+    >
+      {% include 'icon-library', id: 'icon-chevron-down' %}
+    </button>
+    <div
+      class="gallery-navigation--scroller"
+      data-gallery-scroller
+    >
+    {% for media in product.media %}
+      <button
+        class="
+          product-gallery--media-thumbnail
+          product-gallery--{{ media.media_type }}-thumbnail
+        "
+        type="button"
+        tab-index="0"
+        aria-label="{{ media.alt }} {{ 'general.accessibility.nav_product_thumbnail' | t }}"
+        data-gallery-thumbnail
+        data-gallery-index="{{ forloop.index0 }}"
+        data-gallery-selected="{%- if selected_media.id == media.id -%}true{%- else -%}false{%- endif -%}"
+        data-media="{{ media.id }}"
+        data-media-type="{{ media.media_type }}"
+        data-alt="{{ media.alt | escape }}"
+        {% assign alt_handle = media.alt | handle %}
+        {% if alt_handle == product.handle %}
+          data-filter="false"
+        {% endif %}
+      >
+        {% if media.media_type == 'video' or media.media_type == 'external_video' %}
+          {% include 'icon-library', id: 'icon-play-thumb' %}
+        {% elsif media.media_type == 'model' %}
+          {% include 'icon-library', id: 'icon-model-thumb' %}
+        {% endif %}
+        {%
+          include 'rimg',
+          class: 'product-gallery--media-thumbnail-img',
+          img: media.preview_image,
+          size: thumb_dimensions,
+          crop: 'center',
+          lazy: settings.lazy_load,
+          canvas: settings.lazy_load
+        %}
+      </button>
+    {% endfor %}
+    </div>
+  </div>
+{% endif %}
+{% if product.tags contains 'VariantFix' %}
+<script>
+  window.addEventListener('DOMContentLoaded',function(){
+    if(jQuery(".option-value-input[name=Color]:checked").length){
+      var select_color = jQuery(".option-value-input[name=Color]:checked").val();
+      jQuery('button.product-gallery--media-thumbnail.product-gallery--image-thumbnail').hide();
+      jQuery('button.product-gallery--media-thumbnail.product-gallery--image-thumbnail[data-alt="'+select_color+'"], button.product-gallery--media-thumbnail.product-gallery--image-thumbnail[data-alt="master"]').show();
+    }
+    jQuery(".option-value-input[name=Color]").change(function(){
+      var select_color = jQuery(".option-value-input[name=Color]:checked").val();
+      jQuery('button.product-gallery--media-thumbnail.product-gallery--image-thumbnail').hide();
+      jQuery('button.product-gallery--media-thumbnail.product-gallery--image-thumbnail[data-alt="'+select_color+'"], button.product-gallery--media-thumbnail.product-gallery--image-thumbnail[data-alt="master"]').show(); 
+    });
+
+    jQuery(".option-value-input").change(function(){
+
+      if($('[data-swatch-image]').length > 0) {
+        var v_title = '';
+        $('fieldset.form-options').each(function(idx) {
+          v_title += $(this).find('.option-value-input:checked').val() + (idx == $('fieldset.form-options').length - 1 ? '' : ' / ');
+        });
+        $('[data-variant-name]').html(v_title);
+
+        $('[data-swatch-image]').each(function() {
+          var img_src = $('.product-gallery--viewer figure.product-gallery--media[data-gallery-selected="true"] img').attr('src');
+          if($(window).width() < 860) {
+            img_src = $('.product-gallery--viewer figure.product-gallery--media.is-selected img').attr('src');
+          }
+          $(this).find('img').attr('srcset', img_src);
+          $(this).find('img').attr('src', img_src);
+        })
+      }
+
+    })
+
+  });
+</script>
+{% endif %}

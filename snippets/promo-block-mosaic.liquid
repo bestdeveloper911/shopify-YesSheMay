@@ -1,0 +1,109 @@
+{% assign has_link = false %}
+{% if block.settings.block_link != blank %}
+  {% assign has_link = true %}
+{% endif %}
+{% assign block_title = block.settings.title %}
+{% assign block_text = block.settings.text %}
+
+{% assign button_style = block.settings.button_style | split: "_" %}
+
+{%- capture classes -%}
+  promo-block-mosaic
+  {% if forloop.index %}promo-block-mosaic--index-{{ forloop.index }}{% endif %}
+  promo-block-mosaic--{{ block.id }}
+  {% if maintain_aspect_ratio %}promo-mosaic--maintain-aspect-ratio{% endif %}
+  {{ additional_classes | strip_newlines }}
+{%- endcapture -%}
+
+
+<{% if block_title != blank and block_text != blank %}article{% else %}div{% endif %}
+  class="{{ classes | replace: '  ', ' ' | strip_newlines }}"
+  {{ block.shopify_attributes }}
+  {% if block.settings.image %}
+    {%
+      include 'rimg'
+      img: block.settings.image,
+      background: true,
+      lazy: settings.lazy_load,
+      size: '1350x1350'
+    %}
+  {% endif %}
+>
+  {% if block.settings.image %}
+    {%
+      include 'rimg'
+      img: block.settings.image,
+      lazy: settings.lazy_load,
+      canvas: settings.lazy_load,
+      class: 'promo-block-mosaic--background',
+      size: '1350x1350'
+    %}
+  {% endif %}
+
+  {%- capture wrapper_classes -%}
+    promo-block-mosaic--content
+    promo-block-mosaic--content-align-{{ text_alignment }}
+    {% unless maintain_aspect_ratio %}promo-mosaic--maintain-aspect-ratio{% endunless %}
+    {% if compress_blocks == false %}promo-block-mosaic--expanded{% endif %}
+    {% unless has_link %}promo-block-mosaic--unlinked{% endunless %}
+  {%- endcapture -%}
+
+  {% if has_link %}
+    <a
+      class="{{ wrapper_classes | replace: '  ', ' ' | strip_newlines }}"
+      href="{{ block.settings.block_link }}"
+      data-promo-block-mosaic-content
+    >
+  {% else %}
+    <div
+      class="{{ wrapper_classes | replace: '  ', ' ' | strip_newlines }}"
+      data-promo-block-mosaic-content
+    >
+  {% endif %}
+
+  <div class="promo-block-mosaic--content-wrapper">
+    {% if block_title != blank %}
+      <h2 class="promo-block-mosaic--header">
+        {{ block_title | escape }}
+      </h2>
+    {% endif %}
+
+    {% if block_text != blank %}
+      <p class="promo-block-mosaic--text">
+        {{ block_text | escape | truncate: 120 }}
+      </p>
+    {% endif %}
+
+    {% if block.settings.button_text != blank and block.settings.block_link != blank %}
+      {%- capture button_classes -%}
+        button-{{ button_style.first }}
+        promo-block-mosaic--button
+        {% if button_style contains 'icon' %}
+          has-icon
+        {% endif %}
+      {%- endcapture -%}
+      <span class="{{- button_classes -}}">
+        <span class="button-text">
+          {{- block.settings.button_text | escape -}}
+        </span>
+        {% if button_style contains 'icon' %}
+          <span class="button-icon">
+            {% include 'icon-library', id: 'icon-chevron-signpost' %}
+          </span>
+        {% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  {% if compress_blocks == true %}
+    <span class="promo-block-mosaic--expander">
+      {% include 'icon-library', id: 'icon-chevron-down' %}
+    </span>
+  {% endif %}
+
+  {% if has_link %}
+    </a>
+  {% else %}
+    </div>
+  {% endif %}
+</{% if block_title != blank and block_text != blank %}article{% else %}div{% endif %}>

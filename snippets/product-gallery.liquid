@@ -1,0 +1,96 @@
+{% comment %}
+  @param product {Product}
+    The product object in question
+
+  @param aspect_ratio {string}
+    This is the gallery aspect ratio, can be one of 'natural', 'short', 'square', 'long'
+
+  @param thumbnail_position {string}
+    This is the gallery thumbnail position, can be one of 'below', or 'left'
+
+  @param image_crop {boolean}
+    Whether to crop images
+
+  @param hover_zoom {String}
+    This is the hover zoom setting, which is either 'disabled', 'separate', or 'replace'
+
+  @param click_to_zoom {String}
+    This is the click to zoom setting, which is either 'disabled', 'mobile', 'desktop', or 'always'
+
+  @param onboarding {Bool}
+    True if no product is loaded
+{% endcomment %}
+
+{% assign selected_variant = product.selected_or_first_available_variant %}
+{% assign selected_media = selected_variant.featured_media | default: product.featured_media %}
+
+{%- capture slider_classes -%}
+  product-gallery--slider
+  {% if product.media.size > 0 %}
+    product-gallery--has-images
+    product-gallery--style-{{ settings.product_slideshow_style }}
+  {% endif %}
+{%- endcapture -%}
+
+<div
+  class="
+    product-gallery
+    product-gallery--thumbs-{{ thumbnail_position }}
+    {% if hover_zoom != 'disabled' %}hover-zoom-enabled{% endif %}
+    {% if click_to_zoom != 'disabled' and click_to_zoom != 'mobile' %}click-to-zoom-enabled{% endif %}
+  "
+  data-product-gallery
+  {% if image_crop %}data-product-gallery-image-crop{% endif %}
+  data-product-gallery-aspect-ratio="{{ aspect_ratio }}"
+  data-product-gallery-thumbnails="{{ thumbnail_position }}"
+>
+  {% if thumbnail_position == 'left' %}
+    {%
+      include 'product-gallery-navigation'
+      product: product,
+      selected_media: selected_media,
+      aspect_ratio: aspect_ratio,
+      image_crop: image_crop
+    %}
+  {% endif %}
+
+  {%
+    include 'product-gallery-viewer'
+    product: product,
+    selected_media: selected_media,
+    aspect_ratio: aspect_ratio,
+    image_crop: image_crop,
+    hover_zoom: hover_zoom
+  %}
+
+  {% assign first_model = product.media | where: "media_type", "model" | first %}
+  {% if selected_media.media_type == 'model' %}
+    {% assign model = selected_media %}
+  {% else %}
+    {% assign model = first_model %}
+  {% endif %}
+  {% if model %}
+    <button
+      class="product-gallery--viewinyourspace"
+      data-default-model-id="{{ first_model.id }}"
+      data-shopify-xr
+      data-shopify-model3d-id="{{ model.id }}"
+      data-shopify-title="{{ product.title }}"
+      data-shopify-xr-hidden
+    >
+      {% include 'icon-library', id: 'icon-3D' %}
+      {{ 'product.media.view_in_your_space' | t }}
+    </button>
+  {% endif %}
+
+  {% if thumbnail_position != 'left' %}
+    {%
+      include 'product-gallery-navigation'
+      product: product,
+      selected_media: selected_media,
+      aspect_ratio: aspect_ratio,
+      image_crop: image_crop,
+      hover_zoom: hover_zoom
+    %}
+  {% endif %}
+</div>

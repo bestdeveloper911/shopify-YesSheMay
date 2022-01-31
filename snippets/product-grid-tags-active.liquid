@@ -1,0 +1,72 @@
+{% include 'advanced-tag-loop' %}
+
+{%- capture tag_icon -%}
+  <span class="filter-icon--remove">
+    {%- include 'icon-remove-circled' -%}
+    <span class="visually-hidden">
+      {{ 'product_grid.filters.remove_filter' | t }}
+    </span>
+  </span>
+{%- endcapture -%}
+
+<ul class="filter-group--grid">
+  {% assign new_group = false %}
+  {% assign current_group = '' %}
+  {% assign group_count = 0 %}
+  {% assign group_tags = false %}
+
+  {% for tag in current_tags %}
+    {% assign is_advanced_tag = false %}
+    {% assign cat = tag | split: '_' | first %}
+    {% unless cat == tag %}
+      {% if cat_array contains cat %}
+        {% assign is_advanced_tag = true %}
+        {% if section.settings.filter_style == "groups" %}
+          {% assign group_tags = true %}
+        {% endif %}
+      {% endif %}
+    {% endunless %}
+
+    {% if is_advanced_tag %}
+      {% assign tagname = tag | split: '_' %}
+      {% assign tag_label = tagname[1] %}
+      {% if group_tags and current_group != tagname[0] %}
+        {% assign group_count = group_count | plus: 1 %}
+        {% assign current_group = tagname[0] %}
+        {% assign new_group = true %}
+      {% endif %}
+      {% if new_group == true %}
+        {% if group_count != 1 %}
+          </span>
+        {% endif %}
+        <span class="active-tag-group">
+        {% assign new_group = false %}
+      {% endif %}
+    {% else %}
+      {% assign tag_label = tag %}
+    {% endif %}
+
+    <li class="filter-item--grid">
+      {%- capture tag_text -%}
+        <span class="filter-text">
+          {{ tag_label }}
+        </span>
+        {{- tag_icon -}}
+      {%- endcapture -%}
+      {{ tag_text | link_to_remove_tag: tag }}
+    </li>
+
+  {% endfor %}
+  {% if group_tags %}
+    </span>
+  {% endif %}
+
+
+  {% if current_tags.size > 1 %}
+    <li class="filter-item--grid-simple">
+      <a href="{{ collection.url }}">
+        {{ 'product_grid.filters.remove_all' | t }}
+      </a>
+    </li>
+  {% endif %}
+</ul>

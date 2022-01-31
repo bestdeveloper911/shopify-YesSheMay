@@ -1,0 +1,229 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-product--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .featured-product--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+{% endstyle %}
+
+{% assign product = all_products[section.settings.product] %}
+{% assign onboarding = false %}
+
+{% assign hover_zoom = section.settings.gallery_hover_zoom %}
+
+{% if product.empty? %}
+  {% assign onboarding = true %}
+{% endif %}
+
+{%
+  include 'api' with 'product:json',
+  product: product
+%}
+
+<script
+  type="application/json"
+  data-section-type="dynamic-featured-product"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "settings": {
+      "cart_redirection": {{ section.settings.product_cart_redirect | json }},
+      "money_format": {{ shop.money_format | strip_html | json }},
+      "thumbnail_position": {{ section.settings.gallery_thumbnail_position | json }},
+      "gallery_video_autoplay": {{ section.settings.gallery_video_autoplay | json }},
+      "gallery_video_looping": {{ section.settings.gallery_video_looping | json }},
+      "hover_zoom": {{ hover_zoom | json }},
+      "click_to_zoom": "disabled",
+      "lazy_load": {{ settings.lazy_load | json }},
+      "enableHistory": false,
+      "section_id": {{ section.id | json }},
+      "enableSwatches": {{ settings.swatches_enable | json }}
+    },
+    "context": {
+      "product_available": {{ 'product.buttons.add_to_cart' | t | json }},
+      "product_unavailable": {{ 'product.buttons.sold_out' | t | json }}
+    },
+    "product": {% unless onboarding %}{{ json }}{% else %}false{% endunless %},
+    "models": {{ product.media | where: 'media_type', 'model' | json }}
+  }
+</script>
+
+<section
+  class="
+    featured-product--container
+    custom-product--{{ product.handle }}
+    {% for c in product.collections %}custom-collection--{{ c.handle }} {% endfor %}
+  "
+  data-product-wrapper
+>
+  <div class="featured-product--inner">
+    {%
+      include 'product',
+      show_description: section.settings.show_description,
+      onboarding: onboarding,
+      featured: true,
+      gallery_aspect_ratio: section.settings.gallery_aspect_ratio,
+      gallery_thumbnail_position: section.settings.gallery_thumbnail_position,
+      gallery_image_crop: section.settings.gallery_image_crop,
+      gallery_click_to_zoom: 'disabled',
+      gallery_hover_zoom: hover_zoom,
+    %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured product",
+  "class": "featured-product--section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Product settings"
+    },
+    {
+      "id": "product",
+      "type": "product",
+      "label": "Product"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show description",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dcb",
+      "label": "Show dynamic checkout button",
+      "info": "Customers will be shown their preferred payment method, based on their device, shopping history and the options you've enabled. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "product_cart_redirect",
+      "label": "Enable cart redirection",
+      "info": "Automatically sends users to the Cart page after adding a product.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "paragraph",
+      "content": "Learn more about [media types](https://help.shopify.com/en/manual/products/product-media/product-media-types)"
+    },
+    {
+      "type": "select",
+      "id": "gallery_aspect_ratio",
+      "label": "Aspect ratio",
+      "options": [
+        { "value": "natural", "label": "Natural" },
+        { "value": "short", "label": "Short (4:3)" },
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "tall", "label": "Tall (2:3)" }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_image_crop",
+      "label": "Enable image crop",
+      "info": "If disabled, white space will be applied around the image. Has no effect when media aspect ratio is set to natural.",
+      "default": false
+    },
+    {
+      "id": "gallery_thumbnail_position",
+      "type": "select",
+      "label": "Thumbnails position",
+      "options": [
+        {
+          "value": "below",
+          "label": "Below main image"
+        },
+        {
+          "value": "left",
+          "label": "Left of main image"
+        }
+      ],
+      "default": "below"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_video_autoplay",
+      "label": "Enable video autoplay",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_video_looping",
+      "label": "Enable video looping",
+      "default": true
+    },
+    {
+      "id": "gallery_hover_zoom",
+      "type": "select",
+      "label": "Roll-over image zoom",
+      "options": [
+        {
+          "value": "disabled",
+          "label": "Disabled"
+        },
+        {
+          "value": "replace",
+          "label": "Enabled (replace main image)"
+        }
+      ],
+      "info": "Only applies to desktop screen sizes.",
+      "default": "disabled"
+    },
+    {
+      "type": "paragraph",
+      "content": "For the best zoom results, make sure your images are larger than 1600px."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured product",
+      "category": "Product"
+    }
+  ]
+}
+
+{% endschema %}

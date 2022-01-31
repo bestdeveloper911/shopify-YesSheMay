@@ -1,0 +1,45 @@
+{% assign continue_shopping_url = "/collections/all" %}
+
+{% if settings.continue_shopping_url != blank %}
+  {% assign continue_shopping_url = settings.continue_shopping_url %}
+{% endif %}
+
+<section class="fourohfour--container">
+  <header class="fourohfour-title">
+    <h1>{{ '404.general.title' | t }}</h1>
+  </header>
+
+  <div class="fourohfour--inner">
+   
+    
+	{% section 'dynamic-featured-collection' %}
+    {% comment %}
+    {% if settings.continue_url_404 != blank %}
+      <a class="button-primary" href="{{ continue_shopping_url }}">
+        {{ '404.general.continue_shopping' | t }}
+      </a>
+    {% endif %}
+    {% endcomment %}
+  </div> 
+</section>{%- comment -%}smartseo_integration_begin{%- endcomment -%}{{ 'smart-seo-broken-link-detection.js' | asset_url | script_tag }}{%- comment -%}smartseo_integration_end{%- endcomment -%} {% include 'BrokenLinkRedirect' %}
+
+<style>
+  div#shopify-section-collections_404 {
+    margin-bottom: 40px;
+    margin-top: 40px;
+  }
+  .cols-setting img {
+    margin: auto;
+  }
+  span.pr-name {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #000;
+    font-size: 18px;
+    font-family: 'swym-font';
+  }
+  a.product_404 {
+    text-decoration: none;
+  }
+</style>

@@ -1,0 +1,199 @@
+{% style %}
+#shopify-section-{{section.id}} {
+  margin-bottom: 12px;
+}
+#shopify-section-{{section.id}} .container {
+    text-align: center;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+}
+#shopify-section-{{section.id}} div {
+  padding: 15px;
+  flex: 1;
+  {% if section.settings.radius %}
+  border-radius: 10px;
+  {% endif %}
+}
+#shopify-section-{{section.id}} .spacing {
+  width: 12px;
+}
+#shopify-section-{{section.id}} a {
+  padding-left: 15px;
+  font-size: 14px;
+}
+#shopify-section-{{section.id}} p, #shopify-section-{{section.id}} a {
+  font-size: {{section.settings.fontsize}};
+  font-weight: {{section.settings.fontweight}};
+  font-style: {{section.settings.fontstyle}};
+  {% if section.settings.fontstyle == 'underline' %}
+   text-decoration: underline;
+  {% endif %}
+}
+
+@media screen and (max-width: 768px) {
+    #shopify-section-{{section.id}} .container {
+      flex-wrap: wrap;
+    }
+    #shopify-section-{{section.id}} div {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    #shopify-section-{{section.id}} .spacing {
+      width: 6px;
+    }
+}
+{% endstyle %}
+
+<section class="container">
+    {% for block in section.blocks %}
+    <div style="background-color:{{block.settings.background_color}}">
+        <p style="color:{{block.settings.text_color}}">
+            {{ block.settings.content }}
+            <a style="color:{{block.settings.link_color}}" href="{{ block.settings.link_href }}">{{ block.settings.link_text }}</a>
+        </p>
+    </div>
+    {% if block.settings.with_spacing %}
+    <section class="spacing"></section>
+    {% endif %}
+    {% endfor %}
+</section>
+
+{% schema %}
+  {
+    "name": "Custom Announcement",
+    "settings": [
+        {
+          "type": "checkbox",
+          "id": "radius",
+          "label": "Round corner",
+          "default": false
+        },
+        {
+          "id": "fontstyle",
+          "type": "select",
+          "label": "Font style",
+          "default": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "italic",
+              "label": "Italics"
+            },
+            {
+              "value": "underline",
+              "label": "Underline"
+            }
+          ]
+        },
+        {
+          "id": "fontweight",
+          "type": "select",
+          "label": "Font weight",
+          "default": "normal",
+          "options": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "bolder",
+              "label": "Bold"
+            }
+          ]
+        },
+        {
+          "id": "fontsize",
+          "type": "select",
+          "label": "Font size",
+          "options": [
+            {
+              "value": "14px",
+              "label": "Normal"
+            },
+            {
+              "value": "12px",
+              "label": "Short"
+            },
+            {
+              "value": "10px",
+              "label": "Tall"
+            },
+            {
+              "value": "16px",
+              "label": "Grande"
+            },
+            {
+              "value": "20px",
+              "label": "Venti"
+            }
+          ],
+          "default": "14px"
+        }
+    ],
+	  "presets": [{
+    	"name": "Custom announcement",
+    	"category": "Collection"
+  	}],
+    "blocks": [
+        {
+            "type": "title_card",
+            "name": "Announcement item",
+            "settings": [
+                {
+                  "type": "text",
+                  "id": "content",
+                  "label": "Title",
+                  "default":  "announcement"
+                },
+                {
+                  "type": "color",
+                  "id": "text_color",
+                  "label": "Text color",
+                  "default": "#000"
+                },
+                {
+                  "type": "color",
+                  "id": "background_color",
+                  "label": "Background color",
+                  "default": "#D1BAD2"
+                },
+                {
+                  "type": "text",
+                  "id": "link_text",
+                  "label": "Link text",
+                  "default": "Learn more"
+                },
+                {
+                  "type": "color",
+                  "id": "link_color",
+                  "label": "Link color",
+                  "default": "#000"
+                },
+                {
+                  "type": "text",
+                  "id": "link_href",
+                  "label": "Link",
+                  "default": "https://"
+                },
+                {
+                  "type": "checkbox",
+                  "id": "with_spacing",
+                  "label": "With spacing",
+                  "default": true
+                }
+            ]
+        }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

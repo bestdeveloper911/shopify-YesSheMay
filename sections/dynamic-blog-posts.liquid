@@ -1,0 +1,232 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .blogposts--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+    }
+
+  #shopify-section-{{section.id}} .blogposts--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .blogposts--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}} .blogposts--container .home-section--subheading,
+  #shopify-section-{{section.id}} .blogposts--container .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+{% endstyle %}
+
+
+
+{% assign blog = blogs[section.settings.blog] %}
+{% assign blog_url = '#' %}
+{% assign onboarding = true %}
+
+{% if section.settings.blog != 'none' and blog.articles.size > 0 %}
+  {% assign onboarding = false %}
+  {% assign blog_url = blog.url %}
+{% endif %}
+
+{% assign button_style = section.settings.button_style | split:"_" %}
+
+{% assign article_count = 3 %}
+{% if onboarding == false and blog.articles.size < article_count %}
+  {% assign article_count = blog.articles.size %}
+{% endif %}
+
+{%- capture 'button_class' -%}
+  {{ button_style.first | prepend: 'button-' }}
+{%- endcapture -%}
+
+<script
+  type="application/json"
+  data-section-id="{{ section.id }}"
+  data-section-type="dynamic-blog-posts">
+</script>
+
+<section class="blogposts--container blogposts--count-{{ article_count }}">
+  {% if section.settings.title != blank or section.settings.subheading != blank %}
+    <div class="home-section--title-container" >
+    {% if section.settings.title != blank %}
+      <h2 class="home-section--title">
+        {{ section.settings.title | escape }}
+      </h2>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <div class="home-section--subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+    </div>
+  {% endif %}
+
+  <ul class="home-section--content blogposts--inner" data-blog-posts>
+    {% if onboarding %}
+      {% for i in (1..article_count) %}
+        {%
+          include 'article-excerpt',
+          onboarding: true
+        %}
+      {% endfor %}
+    {% else %}
+      {% for article in blog.articles limit: article_count %}
+        {%
+          include 'article-excerpt',
+          article: article
+        %}
+      {% endfor %}
+    {% endif %}
+  </ul>
+
+  <div class="blogposts--footer">
+    <a
+      class=
+      "
+        blogposts--footer-button
+        button-{{ section.settings.view_all_button_style | remove: '_with_icon' }}
+      "
+      href="{{ blog_url }}"
+    >
+      {{ section.settings.view_all_text }}
+
+      {% if section.settings.view_all_button_style contains 'with_icon' %}
+        <span class="blogposts--footer-icon">
+          {% include 'icon-library', id: 'icon-chevron-signpost' %}
+        </span>
+      {% endif %}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "class": "blogposts--section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Blog posts"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date published",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show post author",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show post excerpt",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "'More posts' button"
+    },
+    {
+      "type":      "text",
+      "id":        "view_all_text",
+      "label":     "Label",
+      "default":   "See more posts"
+    },
+    {
+      "type":      "select",
+      "id":        "view_all_button_style",
+      "label":     "Button style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary"
+        },
+        {
+          "value": "primary_with_icon",
+          "label": "Primary with icon"
+        },
+        {
+          "value": "secondary",
+          "label": "Secondary"
+        },
+        {
+          "value": "secondary_with_icon",
+          "label": "Secondary with icon"
+        }
+      ],
+      "default": "primary"
+    }
+  ],
+  "presets": [
+    {
+      "category": "Blog",
+      "name": "Blog posts",
+      "settings": {
+        "blog": "none"
+      }
+    }
+  ]
+}
+
+{% endschema %}

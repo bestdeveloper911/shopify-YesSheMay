@@ -1,0 +1,323 @@
+{% if section.settings.enable %}
+  {% include 'promo-grid' %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Grid",
+  "class": "promo-grid--section promo-grid--static",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable",
+      "label": "Enable grid",
+      "info": "Shows on all product pages",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Grid"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "id": "maintain_aspect_ratio",
+      "type": "checkbox",
+      "label": "Maintain aspect ratio",
+      "info": "Displays the natural size of the images. If this is enabled, custom desktop and mobile heights will be ignored.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "id": "compress_blocks",
+      "type": "checkbox",
+      "label": "Compress blocks",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "promotion",
+      "name": "Grid tile",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "preheading",
+          "label": "Preheading",
+          "default": "Preheading"
+        },
+        {
+          "type": "color",
+          "id": "preheading_color",
+          "label": "Preheading color",
+          "default": "#4d4d4d"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Grid"
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading color",
+          "default": "#4d4d4d"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Use this section to welcome customers to your store, say a bit about your brand, or share news.",
+          "info": "120-character limit"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#4d4d4d"
+        },
+        {
+          "type": "url",
+          "id": "block_link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text"
+        },
+        {
+          "id": "button_style",
+          "type": "select",
+          "label": "Button style",
+          "options": [
+            {
+              "value": "primary",
+              "label": "Primary"
+            },
+            {
+              "value": "primary_icon",
+              "label": "Primary with icon"
+            },
+            {
+              "value": "secondary",
+              "label": "Secondary"
+            },
+            {
+              "value": "secondary_icon",
+              "label": "Secondary with icon"
+            },
+            {
+              "value": "signpost",
+              "label": "Signpost link"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "color",
+          "id": "signpost_color",
+          "label": "Signpost link color",
+          "default": "#4D4D4D"
+        },
+        {
+          "id": "text_alignment",
+          "type": "select",
+          "label": "Text alignment",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top right"
+            },
+            {
+              "value": "center-left",
+              "label": "Center left"
+            },
+            {
+              "value": "center-center",
+              "label": "Center middle"
+            },
+            {
+              "value": "center-right",
+              "label": "Center right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom right"
+            }
+          ],
+          "default": "top-left"
+        },
+        {
+          "type": "header",
+          "content": "Desktop size"
+        },
+        {
+          "type": "select",
+          "id": "promo_width",
+          "label": "Width",
+          "options": [
+            {
+              "value": "half-width",
+              "label": "Half width"
+            },
+            {
+              "value": "full-width",
+              "label": "Full width"
+            }
+          ],
+          "default": "half-width"
+        },
+        {
+          "type": "range",
+          "id": "desktop_height",
+          "label": "Desktop height",
+          "min": 300,
+          "max": 900,
+          "step": 10,
+          "default": 380
+        },
+        {
+          "type": "header",
+          "content": "Mobile size"
+        },
+        {
+          "type": "range",
+          "id": "mobile_height",
+          "label": "Mobile height",
+          "min": 200,
+          "max": 700,
+          "step": 10,
+          "default": 270
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type":      "select",
+          "id":        "overlay_style",
+          "label":     "Overlay style",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "solid",
+              "label": "Solid"
+            },
+            {
+              "value": "gradient",
+              "label": "Gradient"
+            }
+          ],
+          "default":   "none"
+        },
+        {
+          "id": "background",
+          "type": "color",
+          "label": "Color"
+        },
+        {
+          "id": "opacity",
+          "type": "range",
+          "label": "Opacity",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "promotion"
+      },
+      {
+        "type": "promotion"
+      }
+    ]
+  }
+}
+
+{% endschema %}

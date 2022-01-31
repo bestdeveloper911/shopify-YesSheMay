@@ -1,0 +1,63 @@
+{% comment %}
+  @param container {String}
+    Possible values: product_card, product_page, cart_item
+
+  @param inventory_quantity {Number}
+  Product/variant quantity
+
+  @param variant
+  Product variant
+{% endcomment %}
+
+{% assign stock_level = '' %}
+
+{% if inventory_quantity > settings.product_low_stock_threshold  %}
+  {% assign stock_level = 'high' %}
+{% elsif inventory_quantity > 0 and inventory_quantity <= settings.product_low_stock_threshold  %}
+  {% assign stock_level = 'low' %}
+{% elsif inventory_quantity <= 0 %}
+  {% assign stock_level = 'none' %}
+{% endif %}
+
+{% capture stock_badge_classes %}
+  product--stock-level
+  {% if stock_level == 'high'  %}
+    stock-level--in-stock
+  {% elsif stock_level == 'low'  %}
+    stock-level--low-stock
+  {% elsif stock_level == 'none' %}
+    stock-level--no-stock
+  {% endif %}
+{% endcapture %}
+
+{% capture stock_badge_text %}
+  {% if stock_level == 'high' and container != 'product_card'  %}
+    {{ 'product.status.in_stock' | t: inventory_quantity: inventory_quantity }}
+  {% elsif stock_level == 'high' and container == 'product_card'  %}
+    {{ 'product.status.in_stock_product_card' | t: inventory_quantity: inventory_quantity }}
+  {% elsif stock_level == 'low'  %}
+    {{ 'product.status.low_stock' | t: inventory_quantity: inventory_quantity}}
+  {% elsif stock_level == 'none' %}
+    {{ 'product.status.no_stock' | t: inventory_quantity: inventory_quantity }}
+  {% endif %}
+{% endcapture %}
+
+<div class="stock-level--wrapper" data-stock-level>
+  {% if variant.inventory_management %}
+    {% unless stock_level == 'none' and variant.inventory_policy == 'continue' %}
+      <span class="{{ stock_badge_classes }}">
+        {% if container == 'product_page' %}
+          <span class="stock-level--availability">
+            {{ 'product.status.availability' | t }}:
+          </span>
+        {% endif %}
+        {% unless container == 'product_card' %}
+          {% include 'icon-library', id: 'icon-check-circle' %}
+        {% endunless %}
+        <span class="stock-level--text" >
+          {{ stock_badge_text }}
+        </span>
+      </span>
+    {% endunless %}
+  {% endif %}
+</div>

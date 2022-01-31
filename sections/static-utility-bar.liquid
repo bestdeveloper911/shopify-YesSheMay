@@ -1,0 +1,184 @@
+{% style %}
+  .utility-bar {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .utility-bar a {
+    color: {{ section.settings.link_color }};
+  }
+
+  .utility-bar a:hover {
+    color: {{ section.settings.link_hover_color }};
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-type="static-utility-bar"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "settings": {
+      "mobile_layout": {{ section.settings.mobile_layout | json }}
+    }
+  }
+</script>
+
+{% if section.settings.enable %}
+{% if section.settings.left_menu != blank or section.settings.right_menu != blank %}
+  <div class="utility-bar {% if section.settings.use_full_width %}utility-bar-full-width{% endif %}">
+    <div class="utility-bar-content">
+      {% if section.settings.left_menu != blank %}
+        <div class="utility-bar-left">
+          {% for link in linklists[section.settings.left_menu].links %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if section.settings.right_menu != blank %}
+        <div class="utility-bar-right">
+          {% for link in linklists[section.settings.right_menu].links %}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {% assign show_mobile_left = false %}
+    {% assign show_mobile_right = false %}
+    {% if section.settings.left_menu != blank and section.settings.show_left_menu_mobile %}
+      {% assign show_mobile_left = true %}
+    {% endif %}
+    {% if section.settings.right_menu != blank and section.settings.show_right_menu_mobile %}
+      {% assign show_mobile_right = true %}
+    {% endif %}
+
+    {% if show_mobile_left or show_mobile_right %}
+      <div class="utility-bar-mobile" style="display: none;" data-utility-bar-mobile>
+        {% if section.settings.mobile_layout == 'below' %}
+          <hr class="navmenu-hr">
+        {% endif %}
+        <div class="navmenu-utility-bar">
+          {% if show_mobile_left %}
+            {%
+              include 'navlist',
+              menu_list: linklists[section.settings.left_menu].links,
+              depth: 1,
+              max_depth: 1,
+              is_mobile: true
+            %}
+          {% endif %}
+
+          {% if show_mobile_right %}
+            {%
+              include 'navlist',
+              menu_list: linklists[section.settings.right_menu].links,
+              depth: 1,
+              max_depth: 1,
+              is_mobile: true
+            %}
+          {% endif %}
+        </div>
+        {% if section.settings.mobile_layout == 'above' %}
+          <hr class="navmenu-hr">
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Utility bar",
+  "settings": [
+    {
+      "id": "enable",
+      "type": "checkbox",
+      "label": "Enable",
+      "default": false
+    },
+    {
+      "id": "use_full_width",
+      "type": "checkbox",
+      "label": "Use full width",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "id": "background_color",
+      "type": "color",
+      "label": "Background",
+      "default": "#1b175d"
+    },
+    {
+      "id": "link_color",
+      "type": "color",
+      "label": "Link",
+      "default": "#ffffff"
+    },
+    {
+      "id": "link_hover_color",
+      "type": "color",
+      "label": "Link hover",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Left menu"
+    },
+    {
+      "id": "left_menu",
+      "type": "link_list",
+      "label": "Menu"
+    },
+    {
+      "id": "show_left_menu_mobile",
+      "type": "checkbox",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Right menu"
+    },
+    {
+      "id": "right_menu",
+      "type": "link_list",
+      "label": "Menu"
+    },
+    {
+      "id": "show_right_menu_mobile",
+      "type": "checkbox",
+      "label": "Show on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "id": "mobile_layout",
+      "type": "select",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "below",
+          "label": "Below main menu"
+        },
+        {
+          "value": "above",
+          "label": "Above main menu"
+        }
+      ],
+      "default": "below"
+    }
+  ]
+}
+
+{% endschema %}

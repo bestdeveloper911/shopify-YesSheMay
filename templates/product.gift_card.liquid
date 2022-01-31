@@ -1,0 +1,97 @@
+{% render 'shogun-products', content: product %}
+{{product.metafields.shogun.above}}
+<script type="text/javascript">
+  var _learnq = _learnq || [];
+
+  var item = {
+    Name: {{ product.title|json }},
+    ProductID: {{ product.id|json }},
+    Categories: {{ product.collections|map:'title'|json }},
+    ImageURL: "https:{{ product.featured_image.src|img_url:'grande' }}",
+    URL: "{{ shop.secure_url }}{{ product.url }}",
+    Brand: {{ product.vendor|json }},
+    Price: {{ product.price|money|json }},
+    CompareAtPrice: {{ product.compare_at_price_max|money|json }}
+  };
+
+  _learnq.push(['track', 'Viewed Product', item]);
+  _learnq.push(['trackViewedItem', {
+    Title: item.Name,
+    ItemId: item.ProductID,
+    Categories: item.Categories,
+    ImageUrl: item.ImageURL,
+    Url: item.URL,
+    Metadata: {
+      Brand: item.Brand,
+      Price: item.Price,
+      CompareAtPrice: item.CompareAtPrice
+    }
+  }]);
+</script>
+
+{% render 'preorder-now-collection-item', product: product %}
+        {% section 'gift-card-static-product' %}
+{% section 'static-product-recommendations' %}
+<!--Start Stamped.io Auto Installation--><div id="stamped-main-widget" class="stamped-main-widget" data-widget-style="standard" data-product-id="{{ product.id }}" data-name="{{ product.title | escape }}" data-url="{{ shop.url }}{{ product.url }}" data-image-url="{{ product.featured_image | product_img_url: "large" |replace: '?', '%3F' | replace: '&','%26'}}" data-description="{{ product.description | escape }}" data-product-sku="{{product.handle}}" data-product-type="{{product.type}}" data-widget-language="{{shop.locale}}">{{ product.metafields.stamped.reviews }}</div><!--End Stamped.io Auto Installation-->
+{% section 'static-recently-viewed' %}
+{% section 'static-product-promo-grid' %}
+
+
+{{product.metafields.shogun.below}}
+
+<style>
+button.product-form--atc-button[data-product-atc], .product-form--atc-qty.form-fields--qty, .swym-button-bar.swym-wishlist-button-bar.swym-inject, div#see__more_brand {
+    display: none;
+}
+
+  @media screen and (min-width:990px){
+  	.gift-card-template .gallery-navigation--scroll-button.scroll-left {
+        height: auto;
+        width: 100%;
+        top: 0px;
+        padding: 7px 0px;
+      	background:0;
+        display:block;
+    }
+    .gift-card-template .gallery-navigation--scroll-button.scroll-left svg {
+        transform: rotate(180deg);
+        color: #fff;
+		width: 30px;
+ 	    height: 12px;
+    }
+    .gift-card-template  .gallery-navigation--scroll-button.scroll-right {
+        display: block;
+        height: auto;
+        bottom: 0;
+        width: 100%;
+        background: 0;
+    }
+    
+    .gift-card-template .gallery-navigation--scroll-button.scroll-right svg {
+        transform: rotate(0deg);
+        color: #fff;
+		width: 30px;
+ 	    height: 12px;
+    }
+    
+  }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  jQuery(document).on('click','.gift-card-template .gallery-navigation--scroll-button.scroll-right',function(){
+      if($(window).width() > 768){
+          $('.gallery-navigation--scroller').animate({
+              scrollTop: '+=100px'
+          });
+      }
+  });
+
+  jQuery(document).on('click','.gift-card-template .gallery-navigation--scroll-button.scroll-left',function(){
+      if($(window).width() > 768){
+          $('.gallery-navigation--scroller').animate({
+              scrollTop: '-=100px'
+          });
+      }
+  });
+});
+</script>

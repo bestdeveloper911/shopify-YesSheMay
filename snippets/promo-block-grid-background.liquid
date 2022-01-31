@@ -1,0 +1,90 @@
+{%- comment -%}
+  @param blocks {array}
+    Array of blocks to iterate block stylings through
+{%- endcomment -%}
+
+{{ block.settings.image.aspect_ratio }}
+
+<style>
+  {% for block in blocks %}
+    .promo-block-grid--{{ block.id }} {
+      {% if block.settings.color != blank %}
+        color: {{ block.settings.color }};
+      {% endif %}
+
+      {% unless block.settings.image %}
+        {%- capture bg_image -%}
+
+          {%-
+            include 'placeholder_svg_uri'
+            placeholder: 'image'
+           -%}
+        {%- endcapture -%}
+        background-image: url('{{ bg_image | strip_newlines }}');
+      {% endunless %}
+    }
+
+    {% if section.settings.maintain_aspect_ratio %}
+      .promo-block-grid--{{- block.id -}}.desktop-block .promo-block-grid--content {
+        padding-bottom: {{- 100 | divided_by: block.settings.image.aspect_ratio -}}%;
+      }
+
+      .promo-block-grid--{{- block.id -}}.mobile-block .promo-block-grid--content.promo-block-grid--expanded {
+        padding-bottom: {{- 100 | divided_by: block.settings.image.aspect_ratio -}}%;
+      }
+    {% else %}
+      .promo-block-grid--{{- block.id -}}.desktop-block .promo-block-grid--content {
+        height:{{- block.settings.desktop_height -}}px;
+      }
+
+      .promo-block-grid--{{- block.id -}}.mobile-block .promo-block-grid--content.promo-block-grid--expanded {
+        height:{{- block.settings.mobile_height -}}px;
+      }
+  {% endif %}
+
+    {% if block.settings.overlay_style != 'none'
+      and block.settings.background != blank
+      and block.settings.background != 'rgba(0,0,0,0)'
+    %}
+      {% assign opacity = block.settings.opacity | times: 0.01 %}
+
+      {% if block.settings.text_alignment contains 'top' %}
+        {% assign text_position = 'top' %}
+      {% elsif block.settings.text_alignment contains 'bottom' %}
+        {% assign text_position = 'bottom' %}
+      {% else %}
+        {% assign text_position = block.settings.text_alignment | remove: 'center-' %}
+      {% endif %}
+
+      .promo-block-grid--{{ block.id }} .promo-block-grid--content {
+        {% if block.settings.overlay_style == 'solid' %}
+          background-color: {{ block.settings.background | color_modify: 'alpha', opacity }};
+        {% else %}
+          background: {%
+            include 'gradient',
+            color: block.settings.background,
+            opacity: opacity,
+            text_position: text_position,
+          %};
+        {% endif %}
+      }
+    {% endif %}
+
+
+    .promo-block-grid--{{- block.id }} .button-signpost {
+      color: {{- block.settings.signpost_color -}};
+    }
+
+    .promo-block-grid--{{- block.id }} .promo-block-grid--preheading {
+      color: {{- block.settings.preheading_color -}};
+    }
+
+    .promo-block-grid--{{- block.id }} .promo-block-grid--header {
+      color: {{- block.settings.heading_color -}};
+    }
+
+    .promo-block-grid--{{- block.id }} .promo-block-grid--text {
+      color: {{- block.settings.text_color -}};
+    }
+  {% endfor %}
+</style>

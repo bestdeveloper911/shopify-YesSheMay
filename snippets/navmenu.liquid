@@ -1,0 +1,118 @@
+{% comment %}
+  This is the main menu for the theme
+
+  @param menu LinkedList
+    The menu handle to look up.
+
+  @param blocks Array
+    Array of blocks possibly containing meganav information
+
+  @param is_mobile Boolean
+    True if the menu is for mobile nav
+
+  @param highlight_item String
+    If this matches an item title in the top level menu, it will have highlight_item_class applied.
+    Comparison is not case sensitive.
+
+  @param highlight_item_class String
+    Class to apply to highlighted item
+{% endcomment %}
+
+{% assign menu_list = linklists[menu].links %}
+{% assign menu_title = linklists[menu].title %}
+{% assign highlight_item = highlight_item | default: nil %}
+{% assign highlight_item_class = highlight_item_class | default: 'navmenu-item-highlighted' %}
+<ul
+  class="navmenu navmenu-depth-1"
+  data-navmenu
+  {% if menu_title %}aria-label="{{ menu_title }}"{% endif %}
+>
+  {% for menu_item in menu_list %}
+    {% assign show_subnav = true %}
+    {% if linklists[menu_item.handle] == blank %}
+      {% assign show_subnav = false %}
+    {% endif %}
+	{% if is_mobile == true and menu_item.title == 'Brands111' %}
+  	  {% assign show_subnav = false %}
+  	{% endif %}
+    {% assign show_meganav = false %}
+    {% assign shopify_attributes = null %}
+    {% assign meganav_block = null %}
+    {% if blocks.size > 0 %}
+      {% for block in blocks %}
+        {% assign meganav_trigger = block.settings.title | handle | strip %}
+        {% if menu_item.handle == meganav_trigger and menu_item.links.size > 0 %}
+          {% assign show_meganav = true %}
+          {% assign shopify_attributes = block.shopify_attributes %}
+          {% assign meganav_block = block %}
+        {% elsif menu_item.title == meganav_trigger %}
+          {% assign meganav_block = block %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    {% assign title_downcased = menu_item.title | downcase %}
+    {% assign highlight_item_downcased = highlight_item | downcase %}
+    {%- capture navmenu_item_classes -%}
+      navmenu-item
+      {% if show_subnav %}navmenu-item-parent{% endif %}
+      navmenu-id-{{ menu_item.handle }}
+      {% if show_meganav %}navmenu-meganav-item-parent{% endif %}
+      {% if highlight_item_downcased == title_downcased %}{{ highlight_item_class }}{% endif %}
+    {%- endcapture -%}
+
+    <li
+      class="{{ navmenu_item_classes | strip_newlines }}"
+      {% if show_meganav %}data-navmenu-meganav-trigger{% endif %}
+      data-test-linkthing
+      {% if show_subnav %}data-navmenu-parent{% endif %}
+      {{ shopify_attributes }}
+    >
+      <a
+        class="navmenu-link {% if show_subnav %}navmenu-link-parent{% endif %} {% if menu_item.active %}navmenu-link-active{% endif %}"
+        href="{{ menu_item.url | downcase }}"
+        {% if show_subnav %}
+          aria-haspopup="true"
+          aria-expanded="false"
+        {% endif %}
+      >
+        {{ menu_item.title }}
+        {% if show_subnav and is_mobile != true %}
+          <span
+            class="navmenu-icon navmenu-icon-depth-1"
+            data-navmenu-trigger
+          >
+            {% include 'icon-library', id: 'icon-chevron-down-small' %}
+          </span>
+        {% endif %}
+      </a>
+
+      {% if show_subnav and is_mobile and menu_item.title != 'Brands111' %}
+        {%
+          include 'mobile-navmenu-button',
+          button_label: menu_item.title,
+        %}
+      {% endif %}
+
+      {% if show_meganav %}
+        {%
+          include 'meganav',
+          menu: menu_item,
+          block: meganav_block,
+          max_depth: 3,
+          is_mobile: is_mobile,
+        %}
+      {% elsif show_subnav %}
+        {%
+          include 'navlist',
+          menu_list: linklists[menu_item.handle].links,
+          depth: 2,
+          max_depth: 3,
+          show_arrows: true,
+          aria_expanded: false,
+          is_mobile: is_mobile,
+        %}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>

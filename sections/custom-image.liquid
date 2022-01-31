@@ -1,0 +1,328 @@
+{% style %}
+  @media screen and (min-width: 769px) {
+    #shopify-section-{{section.id}} .featured-collection--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+
+    #shopify-section-{{section.id}} ul li {
+      width: 24%;
+    }
+
+    #shopify-section-{{section.id}} .main-carousel {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      outline: 0;
+    }
+    #shopify-section-{{section.id}} {
+      background-color: {{ section.settings.background_color }};
+    }
+
+    #shopify-section-{{section.id}} .featured-collection--container {
+      padding-top: {{ section.settings.section_spacing_mobile }}px;
+      padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+    }
+
+    #shopify-section-{{section.id}} ul li {
+      width: 286px;
+    }
+
+    #shopify-section-{{section.id}} .main-carousel {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      outline: 0;
+    }
+
+    #shopify-section-{{section.id}} .card {
+      position: relative;
+      width: 286px;
+      height: 286px;
+      overflow: hidden;
+    }
+    #shopify-section-{{section.id}} .card-side{
+      height: 400px;
+      -webkit-transition: all 0.8s ease;
+      transition: all 0.8s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+    #shopify-section-{{section.id}} .back {
+      -webkit-transform: rotateY(180deg);
+      transform: rotateY(180deg);
+    }
+
+    #shopify-section-{{section.id}} .card:hover .front {
+      -webkit-transform: rotateY(-180deg);
+      transform: rotateY(-180deg);
+    }
+    #shopify-section-{{section.id}} .card:hover .back {
+      -webkit-transform: rotateY(0);
+      transform: rotateY(0);
+    }
+
+    #shopify-section-{{section.id}} .productitem--title a {
+      font-family: Lato, sans-serif;
+      font-weight: normal;
+    }
+    #shopify-section-{{section.id}} .price--main span {
+      font-weight: bolder;
+      font-size: 1.2rem;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    #shopify-section-{{section.id}} ul li {
+      width: 45%;
+    }
+
+    #shopify-section-{{section.id}} .main-carousel {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      outline: 0;
+    }
+
+    #shopify-section-{{section.id}} .back {
+      display: none;
+    }
+
+    #shopify-section-{{section.id}} .card {
+      position: relative;
+      height: auto;
+    }
+    #shopify-section-{{section.id}} .card-side {
+      height: auto;
+    }
+
+    #shopify-section-{{section.id}} .productitem--title a {
+      font-family: Lato, sans-serif;
+      font-weight: normal;
+    }
+    #shopify-section-{{section.id}} .price--main span {
+      font-weight: bolder;
+      font-size: 1.2rem;
+    }
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--overlay:not(.banner) {
+    {% if section.settings.background_overlay_style == 'solid' %}
+      background-color: {{ section.settings.background_overlay_color }};
+    {% elsif section.settings.background_overlay_style == 'gradient' %}
+      background: {%
+        include 'gradient',
+        color: section.settings.background_overlay_color,
+        text_position: 'top'
+      %};
+    {% endif %}
+    opacity: {{ section.settings.background_overlay_opacity }}%;
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container {
+    margin-bottom: 4rem;
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container .home-section--subheading,
+  #shopify-section-{{section.id}} .featured-collection--container .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container .flickity-prev-next-button .flickity-button-icon {
+    fill: {{ section.settings.heading_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container .flickity-prev-next-button:not(:disabled):hover .flickity-button-icon {
+    fill: #000;
+  }
+
+  #shopify-section-{{section.id}} .productgrid--item {
+    margin-right: 20px;
+  }
+{% endstyle %}
+
+<div class="featured-collection--wrapper">
+    <section
+      class="
+        featured-collection--container
+        product-row--container
+      "
+    >
+        {% if section.settings.title != blank or section.settings.subheading != blank %}
+          <div class="home-section--title-container" >
+          {% if section.settings.title != blank %}
+            <h2 class="home-section--title">
+              {{ section.settings.title | escape }}
+            </h2>
+          {% endif %}
+          {% if section.settings.subheading != blank %}
+            <div class="home-section--subheading">
+              {{ section.settings.subheading }}
+            </div>
+          {% endif %}
+          </div>
+        {% endif %}
+
+        <ul
+          class="
+            home-section--content
+            featured-collection--content
+            product-row
+          "
+          data-content
+        >
+        <div class="main-carousel" data-flickity='{ "groupCells": true, "pageDots": false, "wrapAround": true }'>
+              {% for block in section.blocks %}
+                  <li class="productgrid--item carousel-cell">
+                      <a href="{{ block.settings.image_link }}" class="card">
+                        <div class="card-side front">
+                          {%
+                            include 'rimg',
+                            img: block.settings.image,
+                            class: 'productitem--image',
+                            size: '240x240'
+                            style: 'cursor:pointer'
+                            %}
+                        </div>
+                        {% if block.settings.image_back != blank %}
+                          <div class="card-side back">
+                            {%
+                              include 'rimg',
+                              img: block.settings.image_back,
+                              class: 'productitem--image',
+                              size: '240x240'
+                              style: 'cursor:pointer'
+                            %}
+                          </div>
+                        {% else %}
+                          <div class="card-side back">
+                            {%
+                              include 'rimg',
+                              img: block.settings.image,
+                              class: 'productitem--image',
+                              size: '240x240'
+                              style: 'cursor:pointer'
+                              %}
+                          </div>
+                        {% endif %}
+                      </a>
+
+                      <div class="productitem--info" style="background:#fff;text-align:center;">
+                        <h2 class="productitem--title">
+                          <a href="{{ block.settings.image_link }}">
+                            {{ block.settings.image_title }}
+                          </a>
+                        </h2>
+
+                        <div class="productitem--price ">
+                          <div class="price--compare-at " data-price-compare-at="">
+                              <span class="money"></span>
+                          </div>
+
+                          <div class="price--main" data-price="">
+                              <span class="money">
+                                  {{ block.settings.image_subTitle }}
+                              </span>
+                          </div>
+                        </div>
+                      </div>
+                  </li>
+              {% endfor %}
+            </div>
+        </ul>
+    </section>
+</div>
+
+{% schema %}
+  {
+    "name": "Custom Image Collection",
+    "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Featured collection with image"
+        },
+        {
+          "type": "richtext",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Section heading color",
+          "default": "#4D4D4D"
+        },
+        {
+          "type": "color",
+          "id": "subheading_color",
+          "label": "Section subheading color",
+          "default": "#4D4D4D"
+        }
+    ],
+	  "presets": [{
+    	"name": "Custom image collection",
+    	"category": "Collection"
+  	}],
+    "blocks": [
+        {
+            "type": "title_card",
+            "name": "Image item",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "image_title",
+                    "label": "Title",
+                    "default": "Title"
+                },
+                {
+                    "type": "text",
+                    "id": "image_subTitle",
+                    "label": "Sub Title",
+                    "default": "Sub title"
+                },
+                {
+                    "type": "text",
+                    "id": "image_link",
+                    "label": "Link",
+                    "default": "https://"
+                },
+                {
+                    "type": "color",
+                    "id": "image_title_color",
+                    "label": "Title color",
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "image_subtitle_color",
+                    "label": "Sub Title color",
+                    "default": "#ffffff"
+                },
+                {
+                    "id": "image",
+                    "type": "image_picker",
+                    "label": "Front image",
+                    "info": "custom size recommended"
+                },
+                {
+                    "id": "image_back",
+                    "type": "image_picker",
+                    "label": "Back image",
+                    "info": "custom size recommended"
+                }
+            ]
+        }
+    ]
+  }
+{% endschema %}

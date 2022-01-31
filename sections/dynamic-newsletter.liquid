@@ -1,0 +1,184 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .dynamic-newsletter {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .dynamic-newsletter {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+  }
+
+  #shopify-section-{{section.id}} .dynamic-newsletter .home-section--title {
+    color: {{ section.settings.heading_color }};
+    }
+
+  #shopify-section-{{section.id}} .dynamic-newsletter .home-section--subheading,
+  #shopify-section-{{section.id}} .dynamic-newsletter .home-section--subheading a {
+    color: {{ section.settings.subheading_color }};
+  }
+{% endstyle %}
+
+<script
+  type="application/json"
+  data-section-type="dynamic-newsletter"
+  data-section-id="{{ section.id }}"
+>
+</script>
+
+<section
+  class="
+    dynamic-newsletter
+    dynamic-newsletter-desktop-alignment-{{ section.settings.desktop_alignment }}
+    dynamic-newsletter-mobile-alignment-{{ section.settings.mobile_alignment }}
+  "
+>
+  {% if section.settings.image %}
+    <figure
+      class="dynamic-newsletter-figure"
+      {%
+        include 'rimg',
+        img: section.settings.image,
+        size: '500x',
+        background: true,
+        lazy: settings.lazy_load
+      %}
+    >
+      {%
+        include 'rimg',
+        img: section.settings.image,
+        class: 'dynamic-newsletter-image',
+        size: '500x',
+        canvas: settings.lazy_load,
+        lazy: settings.lazy_load
+      %}
+    </figure>
+  {% endif %}
+
+  <div class="dynamic-newsletter-content">
+    <div class="home-section--title-container">
+        {% if section.settings.title != blank %}
+          <h2 class="home-section--title">
+            {{ section.settings.title | escape }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.subheading != blank %}
+          <div class="dynamic-newsletter-text home-section--subheading">
+            {{ section.settings.subheading }}
+          </div>
+        {% endif %}
+    </div>
+
+    {% include 'newsletter' %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "class": "dynamic-newsletter-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Newsletter"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Invite customers to join your mailing list.</p>"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Section heading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Section subheading color",
+      "default": "#4D4D4D"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background color"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_desktop",
+      "label": "Desktop section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "section_spacing_mobile",
+      "label": "Mobile section spacing",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "desktop_alignment",
+      "label": "Desktop image alignment",
+      "options": [
+        { "label": "Left", "value": "left" },
+        { "label": "Right", "value": "right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "mobile_alignment",
+      "label": "Mobile image alignment",
+      "options": [
+        { "label": "Top", "value": "top" },
+        { "label": "Bottom", "value": "bottom" }
+      ],
+      "default": "top"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter",
+      "category": "Promotional"
+    }
+  ],
+  "locales": {
+    "en": {
+      "form": {
+        "placeholder": "Email address",
+        "submit": "Subscribe",
+        "success": "Thanks for subscribing!"
+      }
+    }
+  }
+}
+
+{% endschema %}

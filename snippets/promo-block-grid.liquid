@@ -1,0 +1,147 @@
+{% assign has_link = false %}
+{% if block.settings.block_link != blank %}
+  {% assign has_link = true %}
+{% endif %}
+{% assign block_preheading = block.settings.preheading %}
+{% assign block_title = block.settings.title %}
+{% assign block_text = block.settings.text %}
+
+{% assign button_style = blank %}
+{% assign button_style = block.settings.button_style | split: "_" %}
+
+{%- capture classes -%}
+  promo-block-grid
+  {% if forloop.index %}promo-block-grid--index-{{ forloop.index }}{% endif %}
+  promo-block-grid--{{ block.id }}
+  {% if maintain_aspect_ratio %}promo-grid--maintain-aspect-ratio{% endif %}
+  {{ additional_classes | strip_newlines }}
+{%- endcapture -%}
+
+<{% if block_title != blank and block_text != blank %}article{% else %}div{% endif %}
+  class="{{ classes | replace: '  ', ' ' | strip_newlines }}"
+  {{ block.shopify_attributes }}
+  {% if block.settings.image %}
+    {%
+      include 'rimg'
+      img: block.settings.image,
+      background: true,
+      lazy: settings.lazy_load,
+      size: '1350x1350'
+    %}
+  {% endif %}
+>
+  {% if block.settings.image %}
+    {%
+      include 'rimg'
+      img: block.settings.image,
+      lazy: settings.lazy_load,
+      canvas: settings.lazy_load,
+      class: 'promo-block-grid--background',
+      size: '1350x1350'
+    %}
+  {% endif %}
+
+  {%- capture wrapper_classes -%}
+    promo-block-grid--content
+    promo-block-grid--content-align-{{ text_alignment }}
+    {% unless maintain_aspect_ratio %}promo-grid--maintain-aspect-ratio{% endunless %}
+    {% if compress_blocks == false %}promo-block-grid--expanded{% endif %}
+    {% unless has_link %}promo-block-grid--unlinked{% endunless %}
+    {% if block.settings.image == blank %}onboarding{% endif %}
+  {%- endcapture -%}
+
+  {% if has_link %}
+    <a
+      class="{{ wrapper_classes | replace: '  ', ' ' | strip_newlines }}"
+      href="{{ block.settings.block_link }}"
+      data-promo-block-grid-content
+    >
+  {% else %}
+    <div
+      class="{{ wrapper_classes | replace: '  ', ' ' | strip_newlines }}"
+      data-promo-block-grid-content
+    >
+  {% endif %}
+
+  <div class="promo-block-grid--content-wrapper">
+    {% if block.settings.preheading != blank %}
+      <div class="promo-block-grid--preheading">
+        {{ block.settings.preheading }}
+      </div>
+    {% endif %}
+    {% if block_title != blank %}
+      <h2 class="promo-block-grid--header">
+        {{ block_title | escape }}
+      </h2>
+    {% endif %}
+
+    {% if block_text != blank %}
+      <p class="promo-block-grid--text">
+        {{ block_text | escape | truncate: 120 }}
+      </p>
+    {% endif %}
+
+    {% if block.settings.button_text != blank and block.settings.block_link != blank %}
+      {%- capture button_classes -%}
+        button-{{ button_style.first }}
+        promo-block-grid--button
+        {% if button_style contains 'icon' %}
+          has-icon
+        {% endif %}
+        {% if block.settings.enable_custom_color %}
+          button-size-{{block.settings.button_fontsize}}
+        {% endif %}
+      {%- endcapture -%}
+      {%- assign theFontSize = "0.7625rem" -%}
+      {% if block.settings.button_fontsize == 'small' %}
+        {%- assign theFontSize = "0.6625rem" -%}
+      {% endif %}
+      {% if block.settings.button_fontsize == 'smaller' %}
+        {%- assign theFontSize = "0.5625rem" -%}
+      {% endif %}
+      {% if block.settings.button_fontsize == 'big' %}
+        {%- assign theFontSize = "0.9625rem" -%}
+      {% endif %}
+      {% if block.settings.button_fontsize == 'bigger' %}
+        {%- assign theFontSize = "1.1625rem" -%}
+      {% endif %}
+      <span class="{{- button_classes -}}"
+        {% if block.settings.enable_custom_color %}
+          style="background:{{block.settings.button_color}};border-color:{{block.settings.button_color}}"
+        {% endif %}
+      >
+        <span class="button-text"
+          {% if block.settings.enable_custom_color %}
+            style="color:{{block.settings.button_text_color}};font-size:{{theFontSize}};font-family:{{block.settings.button_font_style}}"
+          {% endif %}
+        >
+          {{- block.settings.button_text | escape -}}
+        </span>
+
+        {% if button_style contains 'icon' or button_style contains 'signpost' %}
+            {% if button_style contains 'icon' %}
+              <span class="button-icon">
+                {% include 'icon-library', id: 'icon-chevron-signpost' %}
+              </span>
+            {% else if button_style contains 'signpost' %}
+              <span class="signpost-icon">
+                {% include 'icon-library', id: 'icon-chevron-down-small' %}
+              </span>
+            {% endif %}
+        {% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  {% if compress_blocks == true %}
+    <span class="promo-block-grid--expander">
+      {% include 'icon-library', id: 'icon-chevron-down' %}
+    </span>
+  {% endif %}
+
+  {% if has_link %}
+    </a>
+  {% else %}
+    </div>
+  {% endif %}
+</{% if block_title != blank and block_text != blank %}article{% else %}div{% endif %}>

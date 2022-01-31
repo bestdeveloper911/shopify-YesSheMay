@@ -1,0 +1,24 @@
+<div class="product-meta-infos" data-accordions-container>
+
+  {% for title in product.metafields.meta.title %}
+
+    {% assign idx = forloop.index0 %}
+    <div class="product-meta">
+      <!-- <div class="{% if forloop.first %}is-open{% endif %}" data-accordion-button> -->
+      <div class="" data-accordion-button>
+        <span class="title">{{ title }}</span>
+        <span class="icon">{% render 'icon' with 'icon-arrow-down' %}</span>
+      </div>
+      <!-- <div data-accordion-content {% unless forloop.first %}style="display:none;"{% endunless %}> -->
+      <div data-accordion-content style="display:none;">
+        {% assign img = product.metafields.meta.image[idx] %}
+        {% if img != blank %}
+          <div class="image_wrapper"><img src="{{ img }}" class="lazyload"></div>
+        {% endif %}
+        {{ product.metafields.meta.content[idx] }}
+      </div>
+    </div>
+
+  {% endfor %}
+  
+</div>

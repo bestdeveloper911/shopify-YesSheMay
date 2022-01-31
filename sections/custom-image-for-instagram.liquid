@@ -1,0 +1,163 @@
+{% style %}
+  #shopify-section-{{section.id}} {
+    background-color: {{ section.settings.background_color }};
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container {
+    padding-top: {{ section.settings.section_spacing_mobile }}px;
+    padding-bottom: {{ section.settings.section_spacing_mobile }}px;
+  }
+
+  #shopify-section-{{section.id}} .main-carousel {
+      height: 100%;
+      max-height: 400px;
+      overflow: hidden;
+      position: releative;
+  }
+
+  #shopify-section-{{section.id}} .main-carousel > div {
+      position: absolute;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+  }
+
+  #shopify-section-{{section.id}} .main-carousel img {
+      width: 100%;
+  }
+
+  @media screen and (min-width: 720px) {
+    #shopify-section-{{section.id}} .featured-collection--container {
+      padding-top: {{ section.settings.section_spacing_desktop }}px;
+      padding-bottom: {{ section.settings.section_spacing_desktop }}px;
+    }
+
+    #shopify-section-{{section.id}} .main-carousel {
+        height: 100%;
+        max-height: 400px;
+        width: 100%;
+        overflow: hidden;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+      #shopify-section-{{section.id}} .main-carousel {
+          height: 100%;
+          max-height: 400px;
+          width: 100%;
+          overflow: hidden;
+      }
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--overlay:not(.banner) {
+    {% if section.settings.background_overlay_style == 'solid' %}
+      background-color: {{ section.settings.background_overlay_color }};
+    {% elsif section.settings.background_overlay_style == 'gradient' %}
+      background: {%
+        include 'gradient',
+        color: section.settings.background_overlay_color,
+        text_position: 'top'
+      %};
+    {% endif %}
+    opacity: {{ section.settings.background_overlay_opacity }}%;
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container {
+    margin-bottom: 4rem;
+  }
+
+  #shopify-section-{{section.id}} .featured-collection--container .home-section--title {
+    color: {{ section.settings.heading_color }};
+  }
+{% endstyle %}
+
+<div class="featured-collection--wrapper">
+    <section
+      class="
+        featured-collection--container
+        product-row--container
+      "
+    >
+        {% if section.settings.title != blank or section.settings.subheading != blank %}
+          <div class="home-section--title-container" >
+          {% if section.settings.title != blank %}
+            <h2 class="home-section--title">
+              {{ section.settings.title | escape }}
+            </h2>
+          {% endif %}
+          {% if section.settings.subheading != blank %}
+            <div class="home-section--subheading">
+              {{ section.settings.subheading }}
+            </div>
+          {% endif %}
+          </div>
+        {% endif %}
+
+        <div class="main-carousel">
+            {%
+              include 'rimg',
+              img: section.settings.image,
+              style: 'cursor:pointer'
+            %}
+            <div style="width: 100%;">
+                <div style="position: relative; padding-bottom: 50.63%; padding-top: 0; height: 0;">
+                    <iframe frameborder="0" width="1199" height="607" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="{{ section.settings.iframe }}" type="text/html" allowscriptaccess="always" allowfullscreen="true" scrolling="yes" allownetworking="all"></iframe> 
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% schema %}
+  {
+    "name": "Custom Image for Ins",
+    "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Heading",
+          "default": "Featured collection with image"
+        },
+        {
+          "type": "richtext",
+          "id": "subheading",
+          "label": "Subheading"
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Section heading color",
+          "default": "#4D4D4D"
+        },
+        {
+          "type": "color",
+          "id": "subheading_color",
+          "label": "Section subheading color",
+          "default": "#4D4D4D"
+      },
+      {
+          "id": "image",
+          "type": "image_picker",
+          "label": "Image",
+          "info": "320 x 320px .jpg recommended"
+      },
+      {
+          "id": "iframe",
+          "type": "text",
+          "label": "Custom iframe",
+          "default": "https://view.genial.ly/5f55a3b33913970d6490fcd7"
+      }
+    ],
+	"presets": [{
+    	"name": "Custom image for Ins",
+    	"category": "Collection"
+  	}]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
